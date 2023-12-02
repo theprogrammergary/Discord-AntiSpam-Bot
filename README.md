@@ -1,6 +1,6 @@
 ## Discord Imposter Bot 🤖
 
-### About - Scammers join open/free discord servers of popular influencers and often try to imitate said influencer. They DM users of the server pretending to be an influencer and offer fake products/services scamming innocent people. Banning/Moderating of these users would require monitoring 24/7 so this bot was created. It checks all users credentials against moderators. If their credentials match too closely to a moderator then that user is banned or kicked. User credentials are checked when they either join the server or update their credentials. Enjoy and 🖕🏼 you scammers.
+### About - Scammers join open/free discord servers of popular influencers and often try to imitate said influencer. They DM users of the server pretending to be an influencer and offer fake products/services scamming innocent people. Banning/Moderating of these users would require monitoring 24/7 so this bot was created. It checks all users credentials against moderators. If their credentials match too closely to a moderator then that user is banned or kicked. User credentials are checked when users either join the server or update their credentials. Enjoy and 🖕🏼 you scammers.
 
 ![image](image.png)
 
