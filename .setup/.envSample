@@ -1,5 +1,9 @@
-BOT_TOKEN=""
+BOT_TOKEN = ""
 
 # imposter
-MOD_ROLE_NAME="Chat Mod"
-MOD_LOG_CHANNEL_NAME="antispam-log"
+MOD_ROLE_NAME = "Chat Mod"
+MOD_LOG_CHANNEL_NAME = "antispam-log"
+
+# verify
+VERIFY_CHANNEL = "verify"
+VERIFIED_ROLE = "verified"
