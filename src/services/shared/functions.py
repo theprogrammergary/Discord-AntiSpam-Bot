@@ -1,24 +1,29 @@
 # custom imports
 import config
+from logSetup import logger
 from services.shared.vars import *
 
 
+@logger.catch
 async def logIn(bot, discord):
-    print(f"\n\n\nLogged in as {bot.user.name}", flush=True)
+    try:
+        logger.info(f"Logged in as {bot.user.name}")
 
-    await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.playing,
-            name="ServerSecurity.exe",
-        ),
-    )
-    await bot.tree.sync()
+        await bot.change_presence(
+            activity=discord.Activity(
+                type=discord.ActivityType.playing,
+                name="ServerSecurity.exe",
+            ),
+        )
+        await bot.tree.sync()
+    except:
+        logger.critical(f"Error Logging in {bot.user.name}")
 
 
 async def getModInfo(bot, guild_id):
     guild = bot.get_guild(guild_id)
     if guild is None:
-        print(f"Unable to find guild with ID: {guild_id}")
+        logger.critical(f"getModInfo > unable to find guild with ID: {guild_id}")
         return
 
     modIDs = []
@@ -63,3 +68,12 @@ async def userObjectToMemberObject(bot, userObject):
             return member, guild
 
     return None, None
+
+
+async def logEvent(discord, member, resultMsg):
+    log_channel = discord.utils.get(
+        member.guild.channels, name=config.MOD_LOG_CHANNEL_NAME
+    )
+
+    if log_channel is not None:
+        await log_channel.send(resultMsg)

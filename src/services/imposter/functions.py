@@ -7,12 +7,15 @@ import unidecode
 
 # custom imports
 import config
+from logSetup import logger
+
 from services.shared.vars import *
 from services.imposter.vars import *
 import services.shared.functions as shared
 
 
 # entry functions
+@logger.catch
 async def memberJoined(bot, discord, member):
     modNames, modIDs = await shared.getModInfo(bot, member.guild.id)
     if modIDs is None and isModOrBot(member, modIDs):
@@ -25,9 +28,10 @@ async def memberJoined(bot, discord, member):
     if result != 0:
         await handleImposter(member, resultMsg)
 
-    await logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord, member, resultMsg)
 
 
+@logger.catch
 async def memberUpdated(bot, discord, before, after):
     if before.name == after.name and before.nick == after.nick:
         return
@@ -44,9 +48,10 @@ async def memberUpdated(bot, discord, before, after):
     if result != 0:
         await handleImposter(member, resultMsg)
 
-    await logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord, member, resultMsg)
 
 
+@logger.catch
 async def userUpdated(bot, discord, before, after):
     if before.name == after.name and before.display_name == after.display_name:
         return
@@ -66,7 +71,7 @@ async def userUpdated(bot, discord, before, after):
     if result != 0:
         await handleImposter(member, resultMsg)
 
-    await logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord, member, resultMsg)
 
 
 # helper functions
@@ -107,12 +112,12 @@ def isImposter(discordUsername, discordNickname, discordID, modNames, eventType)
     hasNickname = discordNickname is not None and discordNickname.lower() != "none"
     cleanedUsername = cleanUsername(discordUsername)
     cleanedNickname = cleanUsername(discordNickname) if hasNickname else cleanedUsername
-    checkingMessage = f"\n\n• CHECKING NAMES: {cleanedUsername}, {cleanedNickname}"
-    print(checkingMessage, flush=True)
+    checkingMessage = f"• CHECKING NAMES: {cleanedUsername}, {cleanedNickname}"
+    logger.info(checkingMessage)
 
     if namesAreTooSmall(cleanedUsername, cleanedNickname):
         message = f"🟥  KICKED {eventType} - BOTH USERNAMES TOO SMALL <@{discordID}>"
-        print(message, flush=True)
+        logger.info(message)
         return 1, message
 
     highestSimilarity, highestSimilarityName = getHighestSimilarity(
@@ -121,18 +126,17 @@ def isImposter(discordUsername, discordNickname, discordID, modNames, eventType)
 
     if highestSimilarity >= 87.00:
         message = f"🟥  BANNED {eventType} - {highestSimilarityName} <@{discordID}>"
-        print(message, flush=True)
+        logger.info(message)
         return 2, message
 
     elif highestSimilarity >= 70.00:
         message = f"🟥  KICKED {eventType} - {highestSimilarityName} <@{discordID}>"
-        print(message, flush=True)
+        logger.info(message)
         return 1, message
 
     else:
         message = f"🟩  PASS {eventType} - {highestSimilarityName} <@{discordID}>"
-        print(f"{message}\n\n", flush=True)
-
+        logger.info(message)
         return 0, message
 
 
@@ -146,13 +150,13 @@ def getHighestSimilarity(username, nickname, modNames):
 
     for mod in modNames:
         similarity_nick = checkNameSimilarity(nickname, mod)
-        print(f"{similarity_nick}% {username} (nick) vs {mod}", flush=True)
+        logger.info(f"{similarity_nick}% {nickname} (nick) vs {mod}")
         if similarity_nick > highestSimilarity:
             highestSimilarity = similarity_nick
             highestSimilarityName = f"{nickname} is {similarity_nick}% similar to {mod}"
 
         similarity_name = checkNameSimilarity(username, mod)
-        print(f"{similarity_name}% {username} (username) vs {mod}", flush=True)
+        logger.info(f"{similarity_name}% {username} (nick) vs {mod}")
         if similarity_name > highestSimilarity:
             highestSimilarity = similarity_name
             highestSimilarityName = f"{username} is {similarity_name}% similar to {mod}"
@@ -169,7 +173,7 @@ async def handleImposter(member, result):
         try:
             await dm_channel.send(f"{username_kick_msg}{invite_url}")
         except:
-            print(f"Failed to DM KICK {member.name}")
+            logger.warning(f"Failed to DM KICK {member.name}")
 
         await member.kick(reason=username_kick_msg)
 
@@ -177,15 +181,6 @@ async def handleImposter(member, result):
         try:
             await dm_channel.send(username_ban_message)
         except:
-            print(f"Failed to DM BAN {member.name}")
+            logger.warning(f"Failed to DM BAN {member.name}")
 
         await member.ban(reason=username_ban_message)
-
-
-async def logEvent(discord, member, resultMsg):
-    log_channel = discord.utils.get(
-        member.guild.channels, name=config.MOD_LOG_CHANNEL_NAME
-    )
-
-    if log_channel is not None:
-        await log_channel.send(resultMsg)
