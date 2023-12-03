@@ -15,7 +15,7 @@ import services.shared.functions as shared
 # entry functions
 async def memberJoined(bot, discord, member):
     modNames, modIDs = await shared.getModInfo(bot, member.guild.id)
-    if isModOrBot(member, modIDs):
+    if modIDs is None and isModOrBot(member, modIDs):
         return
 
     result, resultMsg = isImposter(
@@ -34,7 +34,7 @@ async def memberUpdated(bot, discord, before, after):
 
     member = after
     modNames, modIDs = await shared.getModInfo(bot, after.guild.id)
-    if isModOrBot(member, modIDs):
+    if modIDs is None or isModOrBot(member, modIDs):
         return
 
     result, resultMsg = isImposter(
@@ -56,7 +56,7 @@ async def userUpdated(bot, discord, before, after):
         return
 
     modNames, modIDs = await shared.getModInfo(bot, guild.id)
-    if isModOrBot(member, modIDs):
+    if modIDs is None or isModOrBot(member, modIDs):
         return
 
     result, resultMsg = isImposter(
