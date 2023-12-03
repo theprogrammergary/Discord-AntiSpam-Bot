@@ -53,8 +53,8 @@ sudo nano /etc/supervisor/conf.d/${botName}.conf
 ```bash
 [program:${botName}]
 user=${vpsUsername}
-directory=/home/bot_manager/Documents/${botName}
-command=/home/bot_manager/Documents/${botName}/.venv/bin/python3.10 /home/bot_manager/Documents/${botName}/src/main.py
+directory=/home/bot_manager/code/${botName}
+command=/home/bot_manager/code/${botName}/.venv/bin/python3.10 /home/bot_manager/code/${botName}/src/main.py
 autostart=true
 autorestart=true
 stopasgroup=true
