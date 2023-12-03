@@ -156,7 +156,7 @@ def getHighestSimilarity(username, nickname, modNames):
             highestSimilarityName = f"{nickname} is {similarity_nick}% similar to {mod}"
 
         similarity_name = checkNameSimilarity(username, mod)
-        logger.info(f"{similarity_name}% {username} (nick) vs {mod}")
+        logger.info(f"{similarity_name}% {username} (name) vs {mod}")
         if similarity_name > highestSimilarity:
             highestSimilarity = similarity_name
             highestSimilarityName = f"{username} is {similarity_name}% similar to {mod}"
