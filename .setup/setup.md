@@ -1,88 +1,44 @@
-## Discord Imposter Bot Setup 🤖
+## Discord Antispam 🤖 Setup 
 
-### 1. Requirements
-
-```bash
-- VPS Server (I use linode)
+### Requirements
+- Linux VPS Server (I use Linode)
+  - [My VPS Provider](https://www.linode.com/lp/refer/?r=3eabea16dddc74fdc11ae5d0a73cd919c1ed1ae0)
 - Discord Server
-- Discord Bot (Create in discord dev portal)
-```
+- Discord Bot
 
-### 2. Clone Git Repo
 
-```bash
-# I clone mine into /Documents on the vps
-git clone yadi yada
-```
-
-### 3. Create Python .venv
+### 1. Clone Git Repo
 
 ```bash
-# Create a virtual environment with Python
-python3 -m venv .venv
+git clone https://github.com/theprogrammergary/Discord-Antispam-Bot
 
-# Activate the virtual environment
-source .venv/bin/activate
-
-# Install project dependencies from requirements.txt
-pip install -r .setup/requirements.txt
+cd Discord-Antispam-Bot
 ```
 
-### 4. Set Your Specific Discord Bot/Server Credientals
+### 2. Run Server Setup Script
 
 ```bash
-# Create .env file in .setup and set credntials
-Example file is provided to see the correct format.
-- BOT_TOKEN: for access
-- MOD_ROLE_NAME: the role name for mods to add not allowed names
-- MOD_LOG_CHANNEL_NAME: for outputting results
+sudo ./.setup/setup.sh
 ```
 
-### 4. Install Supervisor
+### 3. Setup .env
 
 ```bash
-# Install package
-sudo apt install supervisor
+# Create .env file (.envSample file is provided in /.setup)
+sudo nano ./.setup/.env
 
-# Create a Supervisor configuration file for your application
-sudo nano /etc/supervisor/conf.d/${botName}.conf
+# Configure your specific vars 
+Example:
+BOT_TOKEN=123456789101112
 ```
 
-### 5. Sample Supervisor .conf
+### 5. Reboot
 
 ```bash
-[program:${botName}]
-user=${vpsUsername}
-directory=/home/bot_manager/code/${botName}
-command=/home/bot_manager/code/${botName}/.venv/bin/python3.10 /home/bot_manager/code/${botName}/src/main.py
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-stderr_logfile=/var/log/${botName}/${botName}.err.log
-stderr_logfile_maxbytes=50MB
-stderr_logfile_backups=10
-stdout_logfile=/var/log/${botName}/${botName}.out.log
-stdout_logfile_maxbytes=50MB
-stdout_logfile_backups=10
+sudo reboot
 ```
 
-### 6. Create Directories/Output Files for Supervisor
-
-```bash
-# Create directories and files for Supervisor output logs
-sudo mkdir /var/log/${botName}
-sudo touch /var/log/${botName}/${botName}.out.log
-sudo touch /var/log/${botName}/${botName}.err.log
-```
-
-### 7. Start Bots
-
-```bash
-sudo supervisorctl start ${botName}
-```
-
-### 8. Check Status
+### 6. Check Status of Bot
 
 ```bash
 sudo supervisorctl status all
