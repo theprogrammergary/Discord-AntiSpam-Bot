@@ -2,7 +2,7 @@ from loguru import logger
 
 logger.remove()
 logger.add(
-    "./logs/{time:YYYY-MM-DD}.log",
+    sink="./logs/{time:YYYY-MM-DD}.log",
     rotation="00:00",
     retention="14 days",
     compression="zip",

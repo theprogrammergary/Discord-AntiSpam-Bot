@@ -4,6 +4,7 @@ import string
 import re
 import difflib
 import unidecode
+from typing import List, Literal
 
 # custom imports
 import config
@@ -16,112 +17,133 @@ import services.shared.functions as shared
 
 # entry functions
 @logger.catch
-async def memberJoined(bot, discord, member):
-    modNames, modIDs = await shared.getModInfo(bot, member.guild.id)
-    if modIDs is None and isModOrBot(member, modIDs):
+async def memberJoined(bot, discord, member) -> None:
+    modNames, modIDs = await shared.getModInfo(bot=bot, guild_id=member.guild.id)  # type: ignore
+
+    if modIDs is None and isModOrBot(member=member, modIDs=modIDs):
         return
 
     result, resultMsg = isImposter(
-        member.name, member.nick, member.id, modNames, "ON JOIN"
+        discordUsername=member.name,
+        discordNickname=member.nick,
+        discordID=member.id,
+        modNames=modNames,
+        eventType="ON JOIN",
     )
 
     if result != 0:
-        await handleImposter(member, resultMsg)
+        await handleImposter(member=member, result=resultMsg)
 
-    await shared.logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord=discord, member=member, resultMsg=resultMsg)
 
 
 @logger.catch
-async def memberUpdated(bot, discord, before, after):
+async def memberUpdated(bot, discord, before, after) -> None:
     if before.name == after.name and before.nick == after.nick:
         return
 
     member = after
-    modNames, modIDs = await shared.getModInfo(bot, after.guild.id)
-    if modIDs is None or isModOrBot(member, modIDs):
+    modNames, modIDs = await shared.getModInfo(bot=bot, guild_id=after.guild.id)  # type: ignore
+    if modIDs is None or isModOrBot(member=member, modIDs=modIDs):
         return
 
     result, resultMsg = isImposter(
-        member.name, member.nick, member.id, modNames, "ON MEMBER UPDATE"
+        discordUsername=member.name,
+        discordNickname=member.nick,
+        discordID=member.id,
+        modNames=modNames,
+        eventType="ON MEMBER UPDATE",
     )
 
     if result != 0:
-        await handleImposter(member, resultMsg)
+        await handleImposter(member=member, result=resultMsg)
 
-    await shared.logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord=discord, member=member, resultMsg=resultMsg)
 
 
 @logger.catch
-async def userUpdated(bot, discord, before, after):
+async def userUpdated(bot, discord, before, after) -> None:
     if before.name == after.name and before.display_name == after.display_name:
         return
 
-    member, guild = await shared.userObjectToMemberObject(bot, after)
-    if member is None:
+    member, guild = await shared.userObjectToMemberObject(bot=bot, userObject=after)
+    if member is None or guild is None:
         return
 
-    modNames, modIDs = await shared.getModInfo(bot, guild.id)
-    if modIDs is None or isModOrBot(member, modIDs):
+    modNames, modIDs = await shared.getModInfo(bot=bot, guild_id=guild.id)  # type: ignore
+    if modIDs is None or isModOrBot(member=member, modIDs=modIDs):
         return
 
     result, resultMsg = isImposter(
-        after.name, after.display_name, after.id, modNames, "ON USER UPDATE"
+        discordUsername=after.name,
+        discordNickname=after.display_name,
+        discordID=after.id,
+        modNames=modNames,
+        eventType="ON USER UPDATE",
     )
 
     if result != 0:
-        await handleImposter(member, resultMsg)
+        await handleImposter(member=member, result=resultMsg)
 
-    await shared.logEvent(discord, member, resultMsg)
+    await shared.logEvent(discord=discord, member=member, resultMsg=resultMsg)
 
 
 # helper functions
-def isModOrBot(member, modIDs):
+def isModOrBot(member, modIDs: List[int]) -> bool:
     if member.bot or member.id in modIDs:
         return True
     else:
         return False
 
 
-def cleanUsername(username):
-    def removePunctuation(username):
-        pattern = "[" + re.escape(string.punctuation) + "]"
-        noPuncuationUsername = re.sub(pattern, "", str(username))
+def cleanUsername(username: str) -> str:
+    def removePunctuation(username) -> str:
+        pattern: str = "[" + re.escape(pattern=string.punctuation) + "]"
+        noPuncuationUsername: str = re.sub(
+            pattern=pattern, repl="", string=str(object=username)
+        )
         return noPuncuationUsername
 
-    def mapCharacters(username):
+    def mapCharacters(username: str) -> str:
         for key, value in mapping.items():
             username = username.replace(key, value)
         return username
 
-    cleanedUsername = str(username)
-    cleanedUsername = removePunctuation(cleanedUsername)
-    cleanedUsername = mapCharacters(cleanedUsername)
-    cleanedUsername = unidecode.unidecode(cleanedUsername).lower()
+    cleanedUsername = str(object=username)
+    cleanedUsername = removePunctuation(username=cleanedUsername)
+    cleanedUsername = mapCharacters(username=cleanedUsername)
+    cleanedUsername = unidecode.unidecode(string=cleanedUsername).lower()
 
     return cleanedUsername
 
 
-def checkNameSimilarity(string1, string2):
-    matcher = difflib.SequenceMatcher(None, string1, string2)
-    similarity = round(matcher.ratio() * 100, 2)
+def checkNameSimilarity(string1, string2) -> float:
+    matcher = difflib.SequenceMatcher(isjunk=None, a=string1, b=string2)
+    similarity: float = round(number=matcher.ratio() * 100, ndigits=2)
 
     return similarity
 
 
-def isImposter(discordUsername, discordNickname, discordID, modNames, eventType):
+def isImposter(
+    discordUsername, discordNickname, discordID, modNames, eventType
+) -> tuple[Literal[1], str] | tuple[Literal[2], str] | tuple[Literal[0], str]:
     hasNickname = discordNickname is not None and discordNickname.lower() != "none"
-    cleanedUsername = cleanUsername(discordUsername)
-    cleanedNickname = cleanUsername(discordNickname) if hasNickname else cleanedUsername
-    checkingMessage = f"• CHECKING NAMES: {cleanedUsername}, {cleanedNickname}"
+    cleanedUsername: str = cleanUsername(username=discordUsername)
+    cleanedNickname: str = (
+        cleanUsername(username=discordNickname) if hasNickname else cleanedUsername
+    )
+    checkingMessage: str = f"• CHECKING NAMES: {cleanedUsername}, {cleanedNickname}"
     logger.info(checkingMessage)
 
-    if namesAreTooSmall(cleanedUsername, cleanedNickname):
-        message = f"🟥  KICKED {eventType} - BOTH USERNAMES TOO SMALL <@{discordID}>"
+    if namesAreTooSmall(username=cleanedUsername, nickname=cleanedNickname):
+        message: str = (
+            f"🟥  KICKED {eventType} - BOTH USERNAMES TOO SMALL <@{discordID}>"
+        )
         logger.info(message)
         return 1, message
 
     highestSimilarity, highestSimilarityName = getHighestSimilarity(
-        cleanedUsername, cleanedNickname, modNames
+        username=cleanedUsername, nickname=cleanedNickname, modNames=modNames
     )
 
     if highestSimilarity >= 87.00:
@@ -140,31 +162,35 @@ def isImposter(discordUsername, discordNickname, discordID, modNames, eventType)
         return 0, message
 
 
-def namesAreTooSmall(username, nickname):
+def namesAreTooSmall(username, nickname) -> bool:
     return len(username) <= 3 and len(nickname) <= 3
 
 
-def getHighestSimilarity(username, nickname, modNames):
-    highestSimilarity = 0.00
-    highestSimilarityName = ""
+def getHighestSimilarity(username, nickname, modNames) -> tuple[float, str]:
+    highestSimilarity: float = 0.00
+    highestSimilarityName: str = ""
 
     for mod in modNames:
-        similarity_nick = checkNameSimilarity(nickname, mod)
-        logger.info(f"{similarity_nick}% {nickname} (nick) vs {mod}")
-        if similarity_nick > highestSimilarity:
-            highestSimilarity = similarity_nick
-            highestSimilarityName = f"{nickname} is {similarity_nick}% similar to {mod}"
+        nicknameSimilarity: float = checkNameSimilarity(string1=nickname, string2=mod)
+        logger.info(f"{nicknameSimilarity}% {nickname} (nick) vs {mod}")
+        if nicknameSimilarity > highestSimilarity:
+            highestSimilarity = nicknameSimilarity
+            highestSimilarityName = (
+                f"{nickname} is {nicknameSimilarity}% similar to {mod}"
+            )
 
-        similarity_name = checkNameSimilarity(username, mod)
-        logger.info(f"{similarity_name}% {username} (name) vs {mod}")
-        if similarity_name > highestSimilarity:
-            highestSimilarity = similarity_name
-            highestSimilarityName = f"{username} is {similarity_name}% similar to {mod}"
+        usernameSimilarity: float = checkNameSimilarity(string1=username, string2=mod)
+        logger.info(f"{usernameSimilarity}% {username} (nick) vs {mod}")
+        if usernameSimilarity > highestSimilarity:
+            highestSimilarity = usernameSimilarity
+            highestSimilarityName = (
+                f"{username} is {usernameSimilarity}% similar to {mod}"
+            )
 
     return highestSimilarity, highestSimilarityName
 
 
-async def handleImposter(member, result):
+async def handleImposter(member, result) -> None:
     guild = member.guild
     dm_channel = await member.create_dm()
     invite_url = await guild.text_channels[0].create_invite(max_age=600, max_uses=5)

@@ -1,5 +1,6 @@
 # custom imports
 import config
+from typing import Any
 from logSetup import logger
 
 import services.verify.functions as verify
@@ -19,20 +20,30 @@ async def commandNewVerification(
     b: str,
     c: str,
     d: str,
-):
-    validVerificationRequest = await isValidVerificationSetupRequest(
-        interaction, url, question, answer, a, b, c, d
+) -> None:
+    validVerificationRequest: bool = await isValidVerificationSetupRequest(
+        interaction=interaction,
+        url=url,
+        question=question,
+        answer=answer,
+        a=a,
+        b=b,
+        c=c,
+        d=d,
     )
     if not validVerificationRequest:
         return
 
-    verifyChannel = await verify.getVerificationChannel(bot)
+    verifyChannel = await verify.getVerificationChannel(bot=bot)
     if verifyChannel is None:
         await interaction.response.send_message(
             f"The Channel {config.VERIFY_CHANNEL} does not exist."
         )
+        return
 
-    embed = await verify.createVerificationQuestion(discord, question, a, b, c, d, url)
+    embed = await verify.createVerificationQuestion(
+        discord=discord, question=question, a=a, b=b, c=c, d=d, url=url
+    )
     await interaction.response.send_message(
         embed=embed, content="Reply YES to continue with new verification"
     )
@@ -48,8 +59,8 @@ async def commandNewVerification(
             await verifyChannel.purge(limit=2)
             return
 
-        mapNewAnswers(url, question, answer, a, b, c, d)
-        await deleteOldSetupNew(verifyChannel, embed)
+        mapNewAnswers(url=url, question=question, answer=answer, a=a, b=b, c=c, d=d)
+        await deleteOldSetupNew(verifyChannel=verifyChannel, embed=embed)
 
     except Exception as e:
         await verifyChannel.purge(limit=1)
@@ -58,11 +69,11 @@ async def commandNewVerification(
 # helper functions
 async def isValidVerificationSetupRequest(
     interaction, url, question, answer, a, b, c, d
-):
-    response = True
-    responseMsg = "OK"
+) -> bool:
+    response: bool = True
+    responseMsg: str = "OK"
 
-    valid_answers = ["A", "B", "C", "D"]
+    valid_answers: list[str] = ["A", "B", "C", "D"]
 
     if any(value is None for value in [url, question, answer, a, b, c, d]):
         response = False
@@ -82,9 +93,9 @@ async def isValidVerificationSetupRequest(
     return response
 
 
-def mapNewAnswers(url, question, answer, a, b, c, d):
+def mapNewAnswers(url, question, answer, a, b, c, d) -> None:
     global CURRENT_VERIFY
-    answerMap = {"A": a, "B": b, "C": c, "D": d}
+    answerMap: dict[str, Any] = {"A": a, "B": b, "C": c, "D": d}
     CURRENT_VERIFY["correct_answer"] = answer.upper()
     CURRENT_VERIFY["correct_value"] = answerMap[answer.upper()]
     CURRENT_VERIFY["question"] = question
@@ -94,10 +105,10 @@ def mapNewAnswers(url, question, answer, a, b, c, d):
     CURRENT_VERIFY["choice_c"] = c
     CURRENT_VERIFY["choice_d"] = d
     CURRENT_VERIFY["url"] = url
-    verify.saveVerifyAnswers(CURRENT_VERIFY)
+    verify.saveVerifyAnswers(values=CURRENT_VERIFY)
 
 
-async def deleteOldSetupNew(verifyChannel, embed):
+async def deleteOldSetupNew(verifyChannel, embed) -> None:
     global CURRENT_VERIFY
 
     await verifyChannel.purge(limit=None)
@@ -107,4 +118,4 @@ async def deleteOldSetupNew(verifyChannel, embed):
         await newVerificationMessage.add_reaction(reaction)
 
     CURRENT_VERIFY["msgID"] = newVerificationMessage.id
-    verify.saveVerifyAnswers(CURRENT_VERIFY)
+    verify.saveVerifyAnswers(values=CURRENT_VERIFY)

@@ -4,7 +4,7 @@ username_kick_msg = "**Your username is not allowed. Please change it and try ag
 username_ban_message = "**Your username is not allowed. You have been banned. If this was a mistake please contact us.**"
 
 # charater map
-mapping = {
+mapping: dict[str, str] = {
     "0": "o",
     "1": "l",
     "2": "",

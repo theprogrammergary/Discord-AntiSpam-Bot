@@ -1,6 +1,7 @@
 # imports
 import json
 import os
+from typing import Any
 
 # custom imports
 import config
@@ -10,14 +11,14 @@ from services.verify.vars import *
 import services.verify.functions as verify
 import services.shared.functions as shared
 
-CURRENT_VERIFYFile = os.path.join(
+CURRENT_VERIFYFile: str = os.path.join(
     os.getcwd(), "src", "services", "verify", ".currentVerify.json"
 )
 
 
 # entry functions
 @logger.catch
-async def checkVerification(bot, discord, payload):
+async def checkVerification(bot, discord, payload) -> None:
     global CURRENT_VERIFY
     CURRENT_VERIFY = verify.loadVerifyAnswers()
 
@@ -25,13 +26,13 @@ async def checkVerification(bot, discord, payload):
     message = await bot.get_channel(payload.channel_id).fetch_message(
         payload.message_id
     )
-    reaction = discord.utils.get(message.reactions, emoji=str(payload.emoji))
+    reaction = discord.utils.get(message.reactions, emoji=str(object=payload.emoji))
 
-    if await isUserVerified(bot, member, reaction):
+    if await isUserVerified(bot=bot, member=member, reaction=reaction):
         return
 
     try:
-        if not isCorrectAnswer(reaction, CURRENT_VERIFY):
+        if not isCorrectAnswer(reaction=reaction, CURRENT_VERIFY=CURRENT_VERIFY):
             logger.info(f"• FAILED VERFIY: {member}, {member.nick}")
             await reaction.remove(member)
             await reaction.message.guild.kick(member)
@@ -39,22 +40,22 @@ async def checkVerification(bot, discord, payload):
 
         logger.info(f"• SUCCESFUL VERFIY: {member}, {member.nick}")
         await reaction.remove(member)
-        await giveVerification(discord, reaction, member)
+        await giveVerification(discord=discord, reaction=reaction, user=member)
 
     except Exception as e:
         logger.error(f"• EXCEPTION: {member} --- {e}")
 
 
 # helper functions
-def saveVerifyAnswers(values):
-    with open(CURRENT_VERIFYFile, "w") as file:
-        json.dump(values, file)
+def saveVerifyAnswers(values) -> None:
+    with open(file=CURRENT_VERIFYFile, mode="w") as file:
+        json.dump(obj=values, fp=file)
 
 
-def loadVerifyAnswers():
+def loadVerifyAnswers() -> Any | dict[Any, Any]:
     try:
-        with open(CURRENT_VERIFYFile, "r") as file:
-            values = json.load(file)
+        with open(file=CURRENT_VERIFYFile, mode="r") as file:
+            values = json.load(fp=file)
     except (FileNotFoundError, json.JSONDecodeError):
         logger.critical(f"Could not load verification answers.")
         values = {}
@@ -62,22 +63,23 @@ def loadVerifyAnswers():
     return values
 
 
-async def getVerificationChannel(bot):
+async def getVerificationChannel(bot) -> Any | None:
     verifyChannel = None
     botChannels = bot.get_all_channels()
 
     for channel in botChannels:
         if channel.name == config.VERIFY_CHANNEL:
             verifyChannel = channel
+            break
 
     return verifyChannel
 
 
-def isCorrectAnswer(reaction, CURRENT_VERIFY):
-    reactionMap = {"🇦": "A", "🇧": "B", "🇨": "C", "🇩": "D"}
-    mappedReaction = reactionMap.get(reaction.emoji)
+def isCorrectAnswer(reaction, CURRENT_VERIFY: dict) -> bool:
+    reactionMap: dict[str, str] = {"🇦": "A", "🇧": "B", "🇨": "C", "🇩": "D"}
+    mappedReaction: str | None = reactionMap.get(reaction.emoji)
 
-    return str(mappedReaction) == str(CURRENT_VERIFY["answer"]).upper()
+    return str(object=mappedReaction) == str(object=CURRENT_VERIFY["answer"]).upper()
 
 
 async def createVerificationQuestion(discord, question, a, b, c, d, url):
@@ -87,7 +89,7 @@ async def createVerificationQuestion(discord, question, a, b, c, d, url):
         color=discord.Color(0xFFCA00),
     )
 
-    options = [
+    options: list[str] = [
         f"{a_emoji} - {a}",
         f"{b_emoji} - {b}",
         f"{c_emoji} - {c}",
@@ -103,7 +105,7 @@ async def createVerificationQuestion(discord, question, a, b, c, d, url):
     return embed
 
 
-async def setNewVerification(verifyChannel, setupChannel, embed):
+async def setNewVerification(verifyChannel, setupChannel, embed) -> None:
     await verifyChannel.purge(limit=None)
     newVerificationMessage = await verifyChannel.send(embed=embed)
 
@@ -111,13 +113,13 @@ async def setNewVerification(verifyChannel, setupChannel, embed):
         await newVerificationMessage.add_reaction(reaction)
 
 
-async def isUserVerified(bot, member, reaction):
+async def isUserVerified(bot, member, reaction) -> bool:
     if member.bot:
         return True
 
     else:
         member_roles = [role.name for role in member.roles]
-        modNames, modIDs = await shared.getModInfo(bot, member.guild.id)
+        modNames, modIDs = await shared.getModInfo(bot=bot, guild_id=member.guild.id)  # type: ignore
 
         if (modIDs is None) or ("verified" in member_roles) or (member.id in modIDs):
             await reaction.remove(member)
@@ -127,7 +129,7 @@ async def isUserVerified(bot, member, reaction):
             return False
 
 
-async def giveVerification(discord, reaction, user):
+async def giveVerification(discord, reaction, user) -> None:
     role = discord.utils.get(reaction.message.guild.roles, name=config.VERIFIED_ROLE)
     if role:
         await user.add_roles(role)
