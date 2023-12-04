@@ -34,8 +34,6 @@ Scammers join open popular discord servers and solicit fake products to server m
   - ![spam](images/spam.png)
   - Removes and kicks a user who posts a scam/spam message
 
-<!-- # <center>Enjoy and 🖕🏼 you scammers.</center> -->
-
 <div align="center">
     <br></br>
     <h3> Enjoy and 🖕🏼 you scammers.</h3>
@@ -50,7 +48,6 @@ Scammers join open popular discord servers and solicit fake products to server m
   </div>
 </a>
 
-<br></br>
 <a href='https://ko-fi.com/M4M6RTXS2' target='_blank'>
 
   <div style='display: flex; align-items: center;'>
