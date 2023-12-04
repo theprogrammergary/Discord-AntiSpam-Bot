@@ -29,13 +29,7 @@ Scammers join open popular discord servers and solicit fake products to server m
     - ![spam](images/spam.png)
     - Removes and kicks a user who posts a scam/spam message
 
-
-
-
 ### <center>Enjoy and 🖕🏼 you scammers.</center>
-
- 
-![image](image.png)
 
 
 
