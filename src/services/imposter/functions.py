@@ -1,5 +1,4 @@
 # imports
-import os
 import string
 import re
 import difflib
@@ -7,7 +6,6 @@ import unidecode
 from typing import List, Literal
 
 # custom imports
-import config
 from logSetup import logger
 
 from services.shared.vars import *
@@ -18,6 +16,21 @@ import services.shared.functions as shared
 # entry functions
 @logger.catch
 async def memberJoined(bot, discord, member) -> None:
+    """
+    Service to handle when a member joins a server.
+        1. Get Current Moderators
+        2. Check Name Against Moderators
+        3. Ban or Kick Imposters
+
+    Args:
+        bot: The bot instance
+        discord: Discord module
+        member: The member who joined
+
+    Returns:
+        None
+    """
+
     modNames, modIDs = await shared.getModInfo(bot=bot, guild_id=member.guild.id)  # type: ignore
 
     if modIDs is None and isModOrBot(member=member, modIDs=modIDs):
