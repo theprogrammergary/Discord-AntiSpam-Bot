@@ -1,8 +1,10 @@
-a_emoji = "🇦"
-b_emoji = "🇧"
-c_emoji = "🇨"
-d_emoji = "🇩"
-reactions = [a_emoji, b_emoji, c_emoji, d_emoji]
+"""
+Vars for verify service
+"""
 
-global CURRENT_VERIFY
-CURRENT_VERIFY = {}
+reaction_emojis: dict[str, str] = {
+    "a_emoji": "🇦",
+    "b_emoji": "🇧",
+    "c_emoji": "🇨",
+    "d_emoji": "🇩",
+}

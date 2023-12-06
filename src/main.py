@@ -1,58 +1,84 @@
+"""
+Entry for Discord Bot that acts as a controller for bot events and commands.
+"""
+
 # imports
+import sys
+
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-
-# custom imports
 import config
-from logSetup import logger
-
-import services.shared.functions as shared
-import services.verify.functions as verify
 import services.imposter.functions as imposter
+import services.shared.functions as shared
 import services.spam.functions as spam
-
-import services.verify.commands as verifyCommands
+import services.verify.commands as verify_commands
+import services.verify.functions as verify
+from config import logger
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 
 
 @bot.event
-async def on_ready():
-    await shared.logIn(bot, discord)
+async def on_ready() -> None:
+    """
+    Controller for on_ready event.
+    """
+
+    await shared.log_in(bot=bot, discord=discord)
 
 
 @bot.event
-async def on_raw_reaction_add(payload):
-    guild = bot.get_guild(payload.guild_id)
-    channel = guild.get_channel(payload.channel_id)
-    if channel.name == config.VERIFY_CHANNEL:
-        await verify.checkVerification(bot, discord, payload)
+async def on_raw_reaction_add(payload) -> None:
+    """
+    Controller for on_reaction event.
+    """
+
+    guild: discord.Guild | None = bot.get_guild(payload.guild_id)
+    channel: discord.GuildChannel | None = guild.get_channel(payload.channel_id)  # type: ignore
+
+    if channel.name == config.VERIFY_CHANNEL:  # type: ignore
+        await verify.check_verification(bot=bot, discord=discord, payload=payload)
 
 
 @bot.event
-async def on_member_join(member):
-    await imposter.memberJoined(bot, discord, member)
+async def on_member_join(member) -> None:
+    """
+    Controller for on_member_join event.
+    """
+    await imposter.member_joined(bot=bot, discord=discord, member=member)
 
 
 @bot.event
-async def on_member_update(before, after):
-    await imposter.memberUpdated(bot, discord, before, after)
+async def on_member_update(before, after) -> None:
+    """
+    Controller for on_member_update event.
+    """
+    await imposter.member_updated(bot=bot, discord=discord, before=before, after=after)
 
 
 @bot.event
-async def on_user_update(before, after):
-    await imposter.userUpdated(bot, discord, before, after)
+async def on_user_update(before, after) -> None:
+    """
+    Controller for on_user_update event.
+    """
+    await imposter.user_updated(bot=bot, discord=discord, before=before, after=after)
 
 
 @bot.event
-async def on_message(message):
-    await spam.checkSpamMsg(bot, discord, message)
+async def on_message(message) -> None:
+    """
+    Controller for on_message event.
+    """
+    await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
 
 
 @bot.event
-async def on_command_error(content, exception):
+async def on_command_error() -> None:
+    """
+    Controller for on_command_error event.
+    """
     return
 
 
@@ -66,7 +92,7 @@ async def on_command_error(content, exception):
     c="C",
     d="D",
 )
-async def verifyCommand(
+async def verify_command(
     interaction: discord.Interaction,
     url: str,
     question: str,
@@ -75,11 +101,28 @@ async def verifyCommand(
     b: str,
     c: str,
     d: str,
-):
-    await verifyCommands.commandNewVerification(
-        discord, bot, interaction, url, question, answer, a, b, c, d
+) -> None:
+    """
+    Controller for /verify command.
+    """
+
+    await verify_commands.command_new_verification(
+        discord=discord,
+        bot=bot,
+        interaction=interaction,
+        url=url,
+        question=question,
+        answer=answer,
+        a=a,
+        b=b,
+        c=c,
+        d=d,
     )
 
 
 if __name__ == "__main__":
-    bot.run(config.BOT_TOKEN)
+    if config.BOT_TOKEN is None:
+        logger.critical("BOT_TOKEN is not configured.")
+        sys.exit(1)
+
+    bot.run(token=config.BOT_TOKEN)

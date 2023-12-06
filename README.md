@@ -1,93 +1,57 @@
-## Discord Imposter Bot 🤖
+## Discord Anti-spam Bot 🤖
 
-### About - Scammers join open/free discord servers of popular influencers and often try to imitate said influencer. They DM users of the server pretending to be an influencer and offer fake products/services scamming innocent people. Banning/Moderating of these users would require monitoring 24/7 so this bot was created. It checks all users credentials against moderators. If their credentials match too closely to a moderator then that user is banned or kicked. User credentials are checked when users either join the server or update their credentials. Enjoy and 🖕🏼 you scammers.
+### Requirements
 
-![image](image.png)
-
-### 1. Requirements
-
-```bash
-- VPS Server (I use linode)
+- Linux VPS Server - [My VPS Provider](https://www.linode.com/lp/refer/?r=3eabea16dddc74fdc11ae5d0a73cd919c1ed1ae0)
 - Discord Server
-- Discord Bot (Create in discord dev portal)
-```
+- Discord Bot
 
-### 2. Clone Git Repo
+## 📜 [Installation Guide](/.setup/setup.md)
 
-```bash
-# I clone mine into /Documents on the vps
-git clone yadi yada
-```
+#### About
 
-### 3. Create Python .venv
+Scammers join open popular discord servers and solicit fake products to server members. They DM users of the server pretending to be an influencer and offer fake products/services scamming innocent people. Banning/Moderating of these users would require monitoring 24/7 so this bot was created.
 
-```bash
-# Create a virtual environment with Python
-python3 -m venv .venv
+##### Features
 
-# Activate the virtual environment
-source .venv/bin/activate
+- Unique Verification System
 
-# Install project dependencies from requirements.txt
-pip install -r .setup/requirements.txt
-```
+  - ![verify](images/verify.png)
+  - Gives users a verified role if they can answer a unique question correctly
+  - Via the /verify command, you can set to the question to whatever you would like
+  - Will require you to make channels only visible to members who have the verified role
 
-### 4. Set Your Specific Discord Bot/Server Credientals
+- Remove Imposters
 
-```bash
-# Create .env file in .setup and set credntials
-Example file is provided to see the correct format.
-- BOT_TOKEN: for access
-- MOD_ROLE_NAME: the role name for mods to add not allowed names
-- MOD_LOG_CHANNEL_NAME: for outputting results
-```
+  - ![imposter](images/imposter.png)
+  - Bans when username is very similar to a moderator
+  - Kicks when username is similar to a moderator
+  - Checks for an imposter when
+    - Member joins
+    - Member updates profile
 
-### 4. Install Supervisor
+- Spam Message Filter
+  - ![spam](images/spam.png)
+  - Removes and kicks a user who posts a scam/spam message
 
-```bash
-# Install package
-sudo apt install supervisor
+<div align="center">
+    <br></br>
+    <h3> Enjoy and 🖕🏼 you scammers.</h3>
+</div>
 
-# Create a Supervisor configuration file for your application
-sudo nano /etc/supervisor/conf.d/${botName}.conf
-```
+<br></br>
+<a href='mailto:theprogrammergary@gmail.com' target='_blank'>
 
-### 5. Sample Supervisor .conf
+  <div style='display: flex; align-items: center;'>
+    <span style='margin-left: 8px; margin-right: 8px;'>Contact for hire</span>
+    <img height='24' style='border: 0px; height: 36px;' src='https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white' border='0' alt='Email Contact' />
+  </div>
+</a>
 
-```bash
-[program:${botName}]
-user=${vpsUsername}
-directory=/home/bot_manager/code/${botName}
-command=/home/bot_manager/code/${botName}/.venv/bin/python3.10 /home/bot_manager/code/${botName}/src/main.py
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-stderr_logfile=/var/log/${botName}/${botName}.err.log
-stderr_logfile_maxbytes=50MB
-stderr_logfile_backups=10
-stdout_logfile=/var/log/${botName}/${botName}.out.log
-stdout_logfile_maxbytes=50MB
-stdout_logfile_backups=10
-```
+<a href='https://ko-fi.com/M4M6RTXS2' target='_blank'>
 
-### 6. Create Directories/Output Files for Supervisor
-
-```bash
-# Create directories and files for Supervisor output logs
-sudo mkdir /var/log/${botName}
-sudo touch /var/log/${botName}/${botName}.out.log
-sudo touch /var/log/${botName}/${botName}.err.log
-```
-
-### 7. Start Bots
-
-```bash
-sudo supervisorctl start ${botName}
-```
-
-### 8. Check Status
-
-```bash
-sudo supervisorctl status all
-```
+  <div style='display: flex; align-items: center;'>
+    <span style='margin-left: 8px; margin-right: 8px;'>Support this project </span>
+    <img height='24' style='border: 0px; height: 36px;' src='https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black' border='0' alt='Buy Me a Coffee at ko-fi.com' />
+  </div>
+</a>
