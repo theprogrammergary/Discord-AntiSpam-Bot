@@ -1,60 +1,84 @@
-"""Controller for Discord Bot"""
+"""
+Entry for Discord Bot that acts as a controller for bot events and commands.
+"""
 
 # imports
+import sys
+
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-
-# custom imports
 import config
-from logSetup import logger
-import services.shared.functions as shared
-import services.verify.functions as verify
 import services.imposter.functions as imposter
+import services.shared.functions as shared
 import services.spam.functions as spam
-
-import services.verify.commands as verifyCommands
+import services.verify.commands as verify_commands
+import services.verify.functions as verify
+from log_config import logger
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 
 
 @bot.event
 async def on_ready() -> None:
-    await shared.logIn(bot=bot, discord=discord)
+    """
+    Controller for on_ready event.
+    """
+
+    await shared.log_in(bot=bot, discord=discord)
 
 
 @bot.event
 async def on_raw_reaction_add(payload) -> None:
-    guild: discord.Guild | None = bot.get_guild(payload.guild_id)
+    """
+    Controller for on_reaction event.
+    """
 
-    channel = guild.get_channel(payload.channel_id)  # type: ignore
+    guild: discord.Guild | None = bot.get_guild(payload.guild_id)
+    channel: discord.GuildChannel | None = guild.get_channel(payload.channel_id)  # type: ignore
+
     if channel.name == config.VERIFY_CHANNEL:  # type: ignore
-        await verify.checkVerification(bot=bot, discord=discord, payload=payload)
+        await verify.check_verification(bot=bot, discord=discord, payload=payload)
 
 
 @bot.event
 async def on_member_join(member) -> None:
-    await imposter.memberJoined(bot=bot, discord=discord, member=member)
+    """
+    Controller for on_member_join event.
+    """
+    await imposter.member_joined(bot=bot, discord=discord, member=member)
 
 
 @bot.event
 async def on_member_update(before, after) -> None:
-    await imposter.memberUpdated(bot=bot, discord=discord, before=before, after=after)
+    """
+    Controller for on_member_update event.
+    """
+    await imposter.member_updated(bot=bot, discord=discord, before=before, after=after)
 
 
 @bot.event
 async def on_user_update(before, after) -> None:
-    await imposter.userUpdated(bot=bot, discord=discord, before=before, after=after)
+    """
+    Controller for on_user_update event.
+    """
+    await imposter.user_updated(bot=bot, discord=discord, before=before, after=after)
 
 
 @bot.event
 async def on_message(message) -> None:
-    await spam.checkSpamMsg(bot=bot, discord=discord, message=message)
+    """
+    Controller for on_message event.
+    """
+    await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
 
 
 @bot.event
-async def on_command_error(content, exception) -> None:
+async def on_command_error() -> None:
+    """
+    Controller for on_command_error event.
+    """
     return
 
 
@@ -68,7 +92,7 @@ async def on_command_error(content, exception) -> None:
     c="C",
     d="D",
 )
-async def verifyCommand(
+async def verify_command(
     interaction: discord.Interaction,
     url: str,
     question: str,
@@ -78,7 +102,11 @@ async def verifyCommand(
     c: str,
     d: str,
 ) -> None:
-    await verifyCommands.commandNewVerification(
+    """
+    Controller for /verify command.
+    """
+
+    await verify_commands.command_new_verification(
         discord=discord,
         bot=bot,
         interaction=interaction,
@@ -95,6 +123,6 @@ async def verifyCommand(
 if __name__ == "__main__":
     if config.BOT_TOKEN is None:
         logger.critical("BOT_TOKEN is not configured.")
-        exit(code=1)
+        sys.exit(1)
 
     bot.run(token=config.BOT_TOKEN)
