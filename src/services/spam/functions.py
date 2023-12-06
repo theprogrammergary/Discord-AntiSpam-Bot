@@ -6,7 +6,7 @@ import re
 from typing import List
 
 import services.shared.functions as shared
-from log_config import logger
+from config import logger
 
 
 def is_spam(text: str) -> bool:

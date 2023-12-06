@@ -11,7 +11,7 @@ from typing import Any, List
 import config
 import services.shared.functions as shared
 import services.verify.functions as verify
-from log_config import logger
+from config import logger
 from services.verify.vars import reaction_emojis
 
 VERIFICATION_FILEPATH: str = os.path.join(

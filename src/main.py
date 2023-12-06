@@ -15,7 +15,7 @@ import services.shared.functions as shared
 import services.spam.functions as spam
 import services.verify.commands as verify_commands
 import services.verify.functions as verify
-from log_config import logger
+from config import logger
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 

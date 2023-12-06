@@ -6,7 +6,7 @@ Shared services for the app
 from typing import Any
 
 import config
-from log_config import logger
+from config import logger
 from services.shared.vars import NA_MOD_NAMES_LIST
 
 

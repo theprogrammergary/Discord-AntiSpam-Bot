@@ -11,7 +11,7 @@ from typing import List, Literal
 import unidecode
 
 import services.shared.functions as shared
-from log_config import logger
+from config import logger
 from services.imposter.vars import IMPOSTER_BAN_MSG, IMPOSTER_KICK_MSG, MAPPING
 
 

@@ -8,7 +8,7 @@ from typing import Any
 
 import config
 import services.verify.functions as verify
-from log_config import logger
+from config import logger
 from services.verify.vars import reaction_emojis
 
 
