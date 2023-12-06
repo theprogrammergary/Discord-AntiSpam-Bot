@@ -1,4 +1,10 @@
+"""
+Loads environment vars from .env file
+"""
+
+# imports
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".setup", ".env"))
