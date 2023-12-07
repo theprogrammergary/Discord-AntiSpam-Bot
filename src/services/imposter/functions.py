@@ -27,14 +27,14 @@ async def member_joined(bot, discord, member) -> None:
         member: The member who joined
     """
 
-
-    member_names_to_check = {
-        "username": member.name,
-        "nickname": member.nick
-    }
+    member_names_to_check = {"username": member.name, "nickname": member.nick}
 
     await username_security_check(
-        member=member, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON MEMBER JOIN"
+        member=member,
+        bot=bot,
+        discord=discord,
+        names_to_check=member_names_to_check,
+        event_type="ON MEMBER JOIN",
     )
 
 
@@ -52,13 +52,14 @@ async def member_updated(bot, discord, before, after) -> None:
     if before.name == after.name and before.nick == after.nick:
         return
 
-    member_names_to_check = {
-        "username": after.name,
-        "nickname": after.nick
-    }
+    member_names_to_check = {"username": after.name, "nickname": after.nick}
 
     await username_security_check(
-        member=after, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON MEMBER UPDATE"
+        member=after,
+        bot=bot,
+        discord=discord,
+        names_to_check=member_names_to_check,
+        event_type="ON MEMBER UPDATE",
     )
 
 
@@ -77,27 +78,34 @@ async def user_updated(bot, discord, before, after) -> None:
         return
 
     member, _ = await shared.user_obj_to_member_obj(bot=bot, user_object=after)
+    if member is None:
+        return
 
-    user_names_to_check = {
-        "username": after.name,
-        "nickname": after.global_name
-    }
-
-    member_names_to_check = {
-        "username": member.name,
-        "nickname": member.nick
-    }
-
-    await username_security_check(
-        member=member, bot=bot, discord=discord, names_to_check=user_names_to_check, event_type="ON USER UPDATE - USER"
+    user_names_to_check = {"username": after.name, "nickname": after.global_name}
+    invalid_user = await username_security_check(
+        member=member,
+        bot=bot,
+        discord=discord,
+        names_to_check=user_names_to_check,
+        event_type="ON USER UPDATE - USER",
     )
 
+    if invalid_user:
+        return
+
+    member_names_to_check = {"username": member.name, "nickname": member.nick}
     await username_security_check(
-        member=member, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON USER UPDATE - GUILD"
+        member=member,
+        bot=bot,
+        discord=discord,
+        names_to_check=member_names_to_check,
+        event_type="ON USER UPDATE - GUILD",
     )
 
 
-async def username_security_check(member, bot, discord, names_to_check, event_type: str) -> None:
+async def username_security_check(
+    member, bot, discord, names_to_check, event_type: str
+) -> bool:
     """
     1. Gets mod info
     2. Compares usernames/nicknames to mods
@@ -121,7 +129,7 @@ async def username_security_check(member, bot, discord, names_to_check, event_ty
         mod_names, mod_ids = mod_info
 
     if mod_ids is not None and is_mod_or_bot(member=member, mod_ids=mod_ids):
-        return
+        return False
 
     result: Literal[0, 1, 2] = 0
     result_msg: str = ""
@@ -133,10 +141,13 @@ async def username_security_check(member, bot, discord, names_to_check, event_ty
         event_type=event_type,
     )
 
+    await shared.log_event(discord=discord, member=member, result_msg=result_msg)
+
     if result != 0:
         await handle_imposter(member=member, result=result_msg)
+        return True
 
-    await shared.log_event(discord=discord, member=member, result_msg=result_msg)
+    return False
 
 
 # helper functions
@@ -228,7 +239,9 @@ def is_imposter(
         clean_username(username=discord_nickname) if has_nickname else cleaned_username
     )
 
-    logger.info(f"• CHECKING NAMES {event_type}: {cleaned_username}, {cleaned_nickname}")
+    logger.info(
+        f"• CHECKING NAMES {event_type}: {cleaned_username}, {cleaned_nickname}"
+    )
     if names_are_too_small(username=cleaned_username, nickname=cleaned_nickname):
         message: str = (
             f"🟥  KICKED {event_type} - BOTH USERNAMES TOO SMALL <@{discord_id}>"
