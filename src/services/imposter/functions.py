@@ -27,8 +27,14 @@ async def member_joined(bot, discord, member) -> None:
         member: The member who joined
     """
 
+
+    member_names_to_check = {
+        "username": member.name,
+        "nickname": member.nick
+    }
+
     await username_security_check(
-        member=member, bot=bot, discord=discord, event_type="ON MEMBER JOIN"
+        member=member, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON MEMBER JOIN"
     )
 
 
@@ -46,8 +52,13 @@ async def member_updated(bot, discord, before, after) -> None:
     if before.name == after.name and before.nick == after.nick:
         return
 
+    member_names_to_check = {
+        "username": after.name,
+        "nickname": after.nick
+    }
+
     await username_security_check(
-        member=after, bot=bot, discord=discord, event_type="ON MEMBER UPDATE"
+        member=after, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON MEMBER UPDATE"
     )
 
 
@@ -67,12 +78,26 @@ async def user_updated(bot, discord, before, after) -> None:
 
     member, _ = await shared.user_obj_to_member_obj(bot=bot, user_object=after)
 
+    user_names_to_check = {
+        "username": after.name,
+        "nickname": after.global_name
+    }
+
+    member_names_to_check = {
+        "username": member.name,
+        "nickname": member.nick
+    }
+
     await username_security_check(
-        member=member, bot=bot, discord=discord, event_type="ON USER UPDATE"
+        member=member, bot=bot, discord=discord, names_to_check=user_names_to_check, event_type="ON USER UPDATE - USER"
+    )
+
+    await username_security_check(
+        member=member, bot=bot, discord=discord, names_to_check=member_names_to_check, event_type="ON USER UPDATE - GUILD"
     )
 
 
-async def username_security_check(member, bot, discord, event_type: str) -> None:
+async def username_security_check(member, bot, discord, names_to_check, event_type: str) -> None:
     """
     1. Gets mod info
     2. Compares usernames/nicknames to mods
@@ -101,8 +126,8 @@ async def username_security_check(member, bot, discord, event_type: str) -> None
     result: Literal[0, 1, 2] = 0
     result_msg: str = ""
     result, result_msg = is_imposter(
-        discord_username=member.name,
-        discord_nickname=member.nick,
+        discord_username=names_to_check["username"],
+        discord_nickname=names_to_check["nickname"],
         discord_id=member.id,
         mod_names=mod_names,
         event_type=event_type,
@@ -203,7 +228,7 @@ def is_imposter(
         clean_username(username=discord_nickname) if has_nickname else cleaned_username
     )
 
-    logger.info(f"• CHECKING NAMES: {cleaned_username}, {cleaned_nickname}")
+    logger.info(f"• CHECKING NAMES {event_type}: {cleaned_username}, {cleaned_nickname}")
     if names_are_too_small(username=cleaned_username, nickname=cleaned_nickname):
         message: str = (
             f"🟥  KICKED {event_type} - BOTH USERNAMES TOO SMALL <@{discord_id}>"
