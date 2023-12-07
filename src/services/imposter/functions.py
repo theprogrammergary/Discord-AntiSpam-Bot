@@ -65,8 +65,10 @@ async def user_updated(bot, discord, before, after) -> None:
     if before.name == after.name and before.display_name == after.display_name:
         return
 
+    member, _ = await shared.user_obj_to_member_obj(bot=bot, user_object=after)
+
     await username_security_check(
-        member=after, bot=bot, discord=discord, event_type="ON USER UPDATE"
+        member=member, bot=bot, discord=discord, event_type="ON USER UPDATE"
     )
 
 
