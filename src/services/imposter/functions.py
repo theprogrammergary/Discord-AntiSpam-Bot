@@ -342,12 +342,16 @@ async def handle_imposter(member, result: str) -> None:
 
     if result == 1:  # kick user
         if dm_channel is not None:
-            await dm_channel.send(f"{IMPOSTER_KICK_MSG}{invite_url}")
+            try:
+                await dm_channel.send(f"{IMPOSTER_KICK_MSG}{invite_url}")
 
-        await member.kick(reason=IMPOSTER_KICK_MSG)
+            finally:
+                await member.kick(reason=IMPOSTER_KICK_MSG)
 
     elif result == 2:  # ban user
-        if dm_channel is not None:
-            await dm_channel.send(IMPOSTER_BAN_MSG)
+        try:
+            if dm_channel is not None:
+                await dm_channel.send(IMPOSTER_BAN_MSG)
 
-        await member.ban(reason=IMPOSTER_BAN_MSG)
+        finally:
+            await member.ban(reason=IMPOSTER_BAN_MSG)
