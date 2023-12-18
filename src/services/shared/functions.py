@@ -23,10 +23,8 @@ async def log_in(bot, discord) -> None:
     logger.info(f"Logged in as {bot.user.name}")
 
     await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.playing,
-            name="ServerSecurity.exe",
-        ),
+        status=discord.Status.online,
+        activity=discord.CustomActivity(name="Protect & Serve 🚔"),
     )
     await bot.tree.sync()
 
