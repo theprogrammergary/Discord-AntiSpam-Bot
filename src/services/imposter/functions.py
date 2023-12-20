@@ -144,7 +144,7 @@ async def username_security_check(
     await shared.log_event(discord=discord, member=member, result_msg=result_msg)
 
     if result != 0:
-        await handle_imposter(member=member, result=result_msg)
+        await handle_imposter(member=member, result=result)
         return True
 
     return False
@@ -327,13 +327,13 @@ def get_highest_similarity(
     return highest_similarity, highest_similarity_name
 
 
-async def handle_imposter(member, result: str) -> None:
+async def handle_imposter(member, result: int) -> None:
     """
     Bans=2 or kicks=1 based on result
 
     Args:
         member (_type_): _description_
-        result (str): The result type from checking similarity %
+        result (int): The result type from checking similarity %
     """
 
     guild = member.guild
