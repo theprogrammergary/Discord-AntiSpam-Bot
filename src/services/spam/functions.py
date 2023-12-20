@@ -44,35 +44,43 @@ async def check_msg_for_spam(bot, discord, message) -> None:
         message (_type_): _description_
     """
 
-    member = message.author
-
-    if member.bot:
-        return
-
-    mod_info: tuple[list[str], list[int]] | None = await shared.get_mod_info(
-        bot=bot, guild_id=member.guild.id
-    )
-
-    mod_ids: List[int] = []
-    if mod_info is not None:
-        _, mod_ids = mod_info
-    if message.author.id in mod_ids:
-        return
-
     msg_content: str = message.content
     found_spam: bool = is_spam(text=msg_content)
 
     if found_spam:
+        member = message.author
+        if member.bot:
+            return
+
+        # Check message author is not mod
+        mod_names: List[str] = []
+        mod_ids: List[int] = []
+
+        mod_info: tuple[list[str], list[int]] | None = await shared.get_mod_info(
+            bot=bot, guild_id=member.guild.id
+        )
+
+        if mod_info is not None:
+            mod_names, mod_ids = mod_info
+
+        if message.author.id in mod_ids:
+            return
+
+        # Log spam caught
         clean_msg_content: str = msg_content.replace("@", "at-")
+
         log_message: str = (
             f"⚠️ SPAM CAUGHT - <@{message.author.id}>  Content: {clean_msg_content}"
         )
+
         logger.info(log_message)
         await shared.log_event(
             discord=discord, member=message.author, result_msg=log_message
         )
+
+        # Delete message and kick member
         await message.delete()
-        await message.author.kick()
+        # await message.author.kick()
 
     else:
         return
