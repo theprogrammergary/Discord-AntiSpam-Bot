@@ -80,7 +80,7 @@ async def check_msg_for_spam(bot, discord, message) -> None:
 
         # Delete message and kick member
         await message.delete()
-        # await message.author.kick()
+        await message.author.kick()
 
     else:
         return
