@@ -24,7 +24,7 @@ async def log_in(bot, discord) -> None:
 
     await bot.change_presence(
         status=discord.Status.online,
-        activity=discord.CustomActivity(name="Protect & Serve 🚔"),
+        activity=discord.CustomActivity(name="👮🏻‍♂️ Protect & Serve"),
     )
     await bot.tree.sync()
 
