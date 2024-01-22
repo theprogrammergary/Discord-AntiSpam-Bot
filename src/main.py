@@ -13,6 +13,7 @@ import config
 import services.imposter.functions as imposter
 import services.shared.functions as shared
 import services.spam.functions as spam
+import services.trading_plans.functions as trading_plans
 import services.verify.commands as verify_commands
 import services.verify.functions as verify
 from config import logger
@@ -72,6 +73,7 @@ async def on_message(message) -> None:
     Controller for on_message event.
     """
     await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
+    await trading_plans.check_trading_plan(bot=bot, message=message)
 
 
 @bot.event
