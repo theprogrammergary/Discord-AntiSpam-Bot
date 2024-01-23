@@ -10,8 +10,6 @@ from discord import HTTPException
 # custom imports
 import config
 
-# from config import logger
-
 
 async def check_trading_plan(bot, message) -> None:
     """Check trading plan post"""
@@ -19,9 +17,9 @@ async def check_trading_plan(bot, message) -> None:
     if not in_trading_plan(message=message):
         return
 
-    # if not valid_trading_plan(message=message):
-    #     await handle_invalid_post(message=message)
-    #     return
+    if not valid_trading_plan(message=message):
+        await handle_invalid_post(message=message)
+        return
 
     await handle_valid_post(bot=bot, message=message)
 
