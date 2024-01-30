@@ -11,6 +11,7 @@ from discord.ext import commands
 
 import config
 import services.imposter.functions as imposter
+import services.reaction_adds.functions as reaction_adds
 import services.shared.functions as shared
 import services.spam.functions as spam
 import services.trading_plans.functions as trading_plans
@@ -36,11 +37,16 @@ async def on_raw_reaction_add(payload) -> None:
     Controller for on_reaction event.
     """
 
+    if str(object=payload.user_id) == config.BOT_TOKEN:
+        return
+
     guild: discord.Guild | None = bot.get_guild(payload.guild_id)
     channel: discord.GuildChannel | None = guild.get_channel(payload.channel_id)  # type: ignore
 
-    if channel.name == config.VERIFY_CHANNEL:  # type: ignore
+    if channel and channel.name == config.VERIFY_CHANNEL:
         await verify.check_verification(bot=bot, discord=discord, payload=payload)
+    else:
+        await reaction_adds.flood_emoji(bot=bot, discord=discord, payload=payload)
 
 
 @bot.event
@@ -73,7 +79,7 @@ async def on_message(message) -> None:
     Controller for on_message event.
     """
     await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
-    await trading_plans.check_trading_plan(bot=bot, message=message)
+    await trading_plans.check_trading_plan(bot=bot, discord=discord, message=message)
 
 
 @bot.event
