@@ -9,24 +9,23 @@ from discord import HTTPException
 
 # custom imports
 import config
+import services.shared.functions as shared
 
 
-async def check_trading_plan(bot, message) -> None:
+async def check_trading_plan(bot, discord, message) -> None:
     """Check trading plan post"""
 
     if not in_trading_plan(message=message):
         return
 
+    if await mod_or_bot(bot=bot, message=message):
+        return
+
     if not valid_trading_plan(message=message):
-        await handle_invalid_post(message=message)
+        await handle_invalid_post(discord=discord, message=message)
         return
 
     await handle_valid_post(bot=bot, message=message)
-
-    # if message.author.id == 275318980317806602:
-    #     print(f"\n\n\nChannel: {message.channel}")
-    #     print(f"Thread ID: {message.channel.id}")
-    #     print(f"Channel ID: {message.channel.parent_id}")
 
 
 def in_trading_plan(message) -> bool:
@@ -47,6 +46,27 @@ def in_trading_plan(message) -> bool:
     return False
 
 
+async def mod_or_bot(bot, message) -> bool:
+    """
+    Checks whether a posted trading plan came from a member that is a mod or a bot
+
+    Args:
+        bot (_type_): discord bot client
+        message (_type_): trading plan message/post
+
+    Returns:
+        bool: Is message author a bot or a mod
+    """
+
+    mod_info: tuple[list[str], list[int]] | None = await shared.get_mod_info(
+        bot=bot, guild_id=message.author.guild.id
+    )
+
+    return (
+        mod_info is not None and message.author.id in mod_info[1]
+    ) or message.author.bot
+
+
 def valid_trading_plan(message) -> bool:
     """
     Checks that a posted trading plan is valid
@@ -63,19 +83,15 @@ def valid_trading_plan(message) -> bool:
     required_days: int = 7
 
     def has_characters(message) -> bool:
-        print(f"\n\n\nMessage Length: {len(message.content)}")
         return len(message.content) >= required_chars
 
     def has_image(message) -> bool:
-        print(f"Attachments: {len(message.attachments)}")
         return len(message.attachments) >= required_images
 
     def has_clout(message) -> bool:
         days_ago = datetime.datetime.now(
             tz=message.author.joined_at.tzinfo
         ) - datetime.timedelta(days=required_days)
-
-        print(f"Join Date: {message.author.joined_at}")
         return message.author.joined_at <= days_ago
 
     if (
@@ -88,7 +104,7 @@ def valid_trading_plan(message) -> bool:
     return False
 
 
-async def handle_invalid_post(message) -> None:
+async def handle_invalid_post(discord, message) -> None:
     """
     Deletes an invalid post and dm's post author to notify
 
@@ -112,8 +128,16 @@ async def handle_invalid_post(message) -> None:
         except HTTPException:
             pass
 
+    async def log(discord, message) -> None:
+        msg: str = (
+            f'⚠️ INVALID TRADING PLAN IN "{message.channel.name}" - '
+            f"{message.author.mention}"
+        )
+        await shared.log_event(discord=discord, member=message.author, result_msg=msg)
+
     await message.delete()
     await dm_author(author=message.author)
+    await log(discord=discord, message=message)
 
 
 async def handle_valid_post(bot, message) -> None:
@@ -127,7 +151,6 @@ async def handle_valid_post(bot, message) -> None:
 
     if config.PLAN_SUCCESS_CHANNEL_ID is None:
         return
-    print(config.PLAN_SUCCESS_CHANNEL_ID)
 
     target_channel = bot.get_channel(int(config.PLAN_SUCCESS_CHANNEL_ID))
     if target_channel:
