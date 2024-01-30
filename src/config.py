@@ -25,6 +25,31 @@ UNVERIFIED_ROLE: str | None = os.getenv(key="UNVERIFIED_ROLE")
 PLAN_CHANNEL_ID: str | None = os.getenv(key="PLAN_CHANNEL_ID")
 PLAN_SUCCESS_CHANNEL_ID: str | None = os.getenv(key="PLAN_SUCCESS_CHANNEL_ID")
 
+# funded role
+FUNDED_CHANNEL_ID: str | None = os.getenv(key="FUNDED_CHANNEL_ID")
+FUNDED_SUCCESS_CHANNEL_ID: str | None = os.getenv(key="FUNDED_SUCCESS_CHANNEL_ID")
+
+
+# reaction adds
+flood_emojis: list[str] = [
+    "<a:1_gg_gold2:1201620262911737957>",
+    "<a:1_gg_cyan:1201620236382765128>",
+    "<a:1_gg_green:1201620239142637679>",
+    "<a:1_gg_red:1201620253512323194>",
+    "<a:1_gg_orange:1201620248298782851>",
+    "<a:1_gg_royal:1201620257983438959>",
+    "<a:1_gg_pink:1201620250140094484>",
+    "<a:1_gg_altgreen:1201620234596012213>",
+    "<a:1_gg_light_purple:1201620243869610044>",
+    "<a:1_gg_white:1201620259539533956>",
+    "<a:1_gg_white_blue:1201621698412302497>",
+    "<a:1_gg_white_gold:1201622758463897680>",
+    "<a:1_gg_white_neon:1201622335468339250>",
+    "<a:1_gg_white_purple:1201623154691416095>",
+    "<a:1_gg_white_red:1201624061617385513>",
+]
+
+
 # logger
 logger.remove()
 logger.add(
