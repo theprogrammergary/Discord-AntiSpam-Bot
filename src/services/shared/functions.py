@@ -24,8 +24,9 @@ async def log_in(bot, discord) -> None:
 
     await bot.change_presence(
         status=discord.Status.online,
-        activity=discord.CustomActivity(name="👮🏻‍♂️ Protecting the Gains"),
+        activity=discord.CustomActivity(name="💰 Protecting the Gains"),
     )
+
     await bot.tree.sync()
 
 
