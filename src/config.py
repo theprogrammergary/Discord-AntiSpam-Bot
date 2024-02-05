@@ -24,11 +24,59 @@ UNVERIFIED_ROLE: str | None = os.getenv(key="UNVERIFIED_ROLE")
 # trading plan
 PLAN_CHANNEL_ID: str | None = os.getenv(key="PLAN_CHANNEL_ID")
 PLAN_SUCCESS_CHANNEL_ID: str | None = os.getenv(key="PLAN_SUCCESS_CHANNEL_ID")
+FUNDED_ROLE_ID: str | None = os.getenv(key="FUNDED_ROLE_ID")
 
 # funded role
 FUNDED_CHANNEL_ID: str | None = os.getenv(key="FUNDED_CHANNEL_ID")
 FUNDED_SUCCESS_CHANNEL_ID: str | None = os.getenv(key="FUNDED_SUCCESS_CHANNEL_ID")
 
+FUNDED_ROLE_ID: str | None = os.getenv(key="FUNDED_ROLE_ID")
+PAID_ROLE_ID: str | None = os.getenv(key="PAID_ROLE_ID")
+FUNDED_ROLE: int | None = int(FUNDED_ROLE_ID) if FUNDED_ROLE_ID else None
+PAID_ROLE: int | None = int(PAID_ROLE_ID) if PAID_ROLE_ID else None
+
+FUNDED_USER_CERTIFICATE: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "temp_images"
+)
+FUNDED_TRADOVATE: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "images", "tradovate.png"
+)
+FUNDED_RITHMIC: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "images", "rithmic.png"
+)
+FUNDED_PAYOUT: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "images", "payout.png"
+)
+
+FUNDED_VIDEO: str = "https://www.youtube.com/watch?v=YDRdaAMJvcM"
+FUNDED_LINK: str = " https://www.tbm.gg/apex"
+FUNDED_ROLE_LINK: str = (
+    "https://discord.com/channels/668989780398440466/1199451449810243655"
+)
+
+FUNDED_ICON: str = (
+    "https://cdn.discordapp.com/role-icons/1196869632024379536/"
+    "3539160b2a49805193ca7cc2d09ec480.webp?quality=lossless"
+)
+FUNDED_IMAGE: str = (
+    "https://media1.giphy.com/media/v1."
+    "Y2lkPTc5MGI3NjExaDBkejJuNTVjYmhxNHd6Y2U1amtwbTgzeHYwYmhwZTlsYjFybnp4dSZlcD12"
+    "MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9d1K8Ss20QgmtHbXE3/giphy.gif"
+)
+
+PAID_ICON: str = (
+    "https://cdn.discordapp.com/emojis/1203495151344029746.webp?quality=lossless"
+)
+PAID_IMAGE: str = (
+    "https://media4.giphy.com/media/v1."
+    "Y2lkPTc5MGI3NjExYzZidTJpbHR2OWdsMDd6MmxldWdrdTZ4YXZ1ZmN5eHpyd3M5eHh3aiZlcD1"
+    "2MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/smyd2ywWabsa4TmIvD/giphy.gif"
+)
+
+
+GG_ICON: str = (
+    "https://cdn.discordapp.com/emojis/1200990322788937748.png?size=40&quality=lossless"
+)
 
 # reaction adds
 flood_emojis: list[str] = [
