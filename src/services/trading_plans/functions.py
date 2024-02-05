@@ -5,11 +5,16 @@ Service that checks trading plan posts for the correct content
 # standard imports
 import datetime
 
-from discord import HTTPException
+from discord import Embed, HTTPException, TextChannel
 
 # custom imports
 import config
 import services.shared.functions as shared
+
+# vars
+required_chars: int = 200
+required_images: int = 1
+required_days: int = 7
 
 
 async def check_trading_plan(bot, discord, message) -> None:
@@ -18,10 +23,9 @@ async def check_trading_plan(bot, discord, message) -> None:
     if not in_trading_plan(message=message):
         return
 
-    if await mod_or_bot(bot=bot, message=message):
-        return
-
-    if not valid_trading_plan(message=message):
+    if not valid_trading_plan(message=message) and not mod_or_bot(
+        bot=bot, message=message
+    ):
         await handle_invalid_post(discord=discord, message=message)
         return
 
@@ -78,10 +82,6 @@ def valid_trading_plan(message) -> bool:
         bool: Plan is valid
     """
 
-    required_chars: int = 120
-    required_images: int = 1
-    required_days: int = 7
-
     def has_characters(message) -> bool:
         return len(message.content) >= required_chars
 
@@ -118,9 +118,9 @@ async def handle_invalid_post(discord, message) -> None:
                 "\n\n\nYour trading plan was deleted due to not meeting the requirements! "
                 "Please read through the requirements below and repost your trading plan.\n\n"
                 "**__Trading Plan REQUIREMENTS:__**\n"
-                "   -Have 120 characters of explanation\n"
-                "   -Have at least 1 image\n"
-                "   -Be a member of the server for at least 7 days\n"
+                f"   -Have {required_chars} characters of explanation\n"
+                f"   -Have at least {required_images} image\n"
+                f"   -Be a member of the server for at least {required_days} days\n"
                 "\n\n-Thanks!"
             )
             await author.send(invalid_msg)
@@ -130,8 +130,9 @@ async def handle_invalid_post(discord, message) -> None:
 
     async def log(discord, message) -> None:
         msg: str = (
-            f'⚠️ INVALID TRADING PLAN IN "{message.channel.name}" - '
-            f"{message.author.mention}"
+            "⚠️ **__INVALID TRADING PLAN IN__**"
+            f"\n> - {message.author.mention}"
+            f"\n> - {message.channel.name} - '"
         )
         await shared.log_event(discord=discord, member=message.author, result_msg=msg)
 
@@ -152,16 +153,30 @@ async def handle_valid_post(bot, message) -> None:
     if config.PLAN_SUCCESS_CHANNEL_ID is None:
         return
 
-    target_channel = bot.get_channel(int(config.PLAN_SUCCESS_CHANNEL_ID))
+    target_channel: TextChannel = bot.get_channel(int(config.PLAN_SUCCESS_CHANNEL_ID))
     if target_channel:
-        user_mention = message.author.mention
+        user_mention: str = message.author.mention
         message_link: str = (
             f"https://discord.com/channels/"
             f"{message.guild.id}/{message.channel.id}/{message.id}"
         )
 
-        await target_channel.send(
-            f"{user_mention} posted a trading plan!\n\n"
-            "Check it out 👇🏽\n"
-            f"{message_link}"
+        embed_description: str = (
+            f"{user_mention} posted a trading plan!"
+            "\n\n\nCheck it out 👇🏽"
+            f"\n- {message_link}"
         )
+
+        embed = Embed(
+            title="💡 **__New Trading Plan!__**",
+            description=embed_description,
+            color=0x00A473,
+        )
+
+        if message.author.display_avatar.url:
+            embed.set_thumbnail(url=message.author.display_avatar.url)
+
+        if message.attachments[0].url:
+            embed.set_image(url=message.attachments[0].url)
+
+        await target_channel.send(embed=embed)
