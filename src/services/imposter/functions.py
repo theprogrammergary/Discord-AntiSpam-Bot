@@ -87,7 +87,7 @@ async def user_updated(bot, discord, before, after) -> None:
         bot=bot,
         discord=discord,
         names_to_check=user_names_to_check,
-        event_type="ON USER UPDATE - USER",
+        event_type="ON USER UPDATE",
     )
 
     if invalid_user:
@@ -99,7 +99,7 @@ async def user_updated(bot, discord, before, after) -> None:
         bot=bot,
         discord=discord,
         names_to_check=member_names_to_check,
-        event_type="ON USER UPDATE - GUILD",
+        event_type="ON GUILD USER UPDATE",
     )
 
 
@@ -244,8 +244,11 @@ def is_imposter(
     )
     if names_are_too_small(username=cleaned_username, nickname=cleaned_nickname):
         message: str = (
-            f"🟥  KICKED {event_type} - BOTH USERNAMES TOO SMALL <@{discord_id}>"
+            f"🚨 **__KICKED {event_type}__**"
+            f"\n> - <@{discord_id}>"
+            "\n> - BOTH USERNAMES TOO SMALL"
         )
+
         logger.info(message)
         return 1, message
 
@@ -256,17 +259,29 @@ def is_imposter(
     )
 
     if highest_similarity >= 87.00:
-        message = f"🟥  BANNED {event_type} - {highest_similarity_name} <@{discord_id}>"
+        message = (
+            f"⛔ **__BANNED {event_type}__**"
+            f"\n> - <@{discord_id}>"
+            f"\n> - {highest_similarity_name}"
+        )
         logger.info(message)
         return 2, message
 
     elif highest_similarity >= 70.00:
-        message = f"🟥  KICKED {event_type} - {highest_similarity_name} <@{discord_id}>"
+        message = (
+            f"⛔ **__KICKED {event_type}__**"
+            f"\n> - <@{discord_id}>"
+            f"\n> - {highest_similarity_name}"
+        )
         logger.info(message)
         return 1, message
 
     else:
-        message = f"🟩  PASS {event_type} - {highest_similarity_name} <@{discord_id}>"
+        message = (
+            f"✅ **__PASS {event_type}__**"
+            f"\n> - <@{discord_id}>"
+            f"\n> - {highest_similarity_name}"
+        )
         logger.info(message)
         return 0, message
 
