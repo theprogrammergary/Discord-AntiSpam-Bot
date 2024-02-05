@@ -116,4 +116,4 @@ async def log_event(discord, member, result_msg: str) -> None:
     )
 
     if log_channel is not None:
-        await log_channel.send(result_msg)
+        await log_channel.send(result_msg + "\n‎")

@@ -70,7 +70,9 @@ async def check_msg_for_spam(bot, discord, message) -> None:
         clean_msg_content: str = msg_content.replace("@", "at-")
 
         log_message: str = (
-            f"⚠️ SPAM CAUGHT - <@{message.author.id}>  Content: {clean_msg_content}"
+            "⚠️ **__SPAM CAUGHT__**"
+            f"\n> - <@{message.author.id}>"
+            f"\n> - Content: {clean_msg_content}"
         )
 
         logger.info(log_message)
