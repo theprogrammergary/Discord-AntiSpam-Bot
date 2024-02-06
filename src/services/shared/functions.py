@@ -16,8 +16,8 @@ async def log_in(bot, discord) -> None:
     Log & Update bot status/command tree
 
     Args:
-        bot (_type_): Bot object
-        discord (_type_): Discord object
+        bot (discord.Client): Bot object
+        discord (discord): Discord object
     """
 
     logger.info(f"Logged in as {bot.user.name}")

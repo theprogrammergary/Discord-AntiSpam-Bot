@@ -7,7 +7,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Set variables
-botName="Discord-AntiSpam-Bot"
+botName="gg-bot"
 vpsUsername=$SUDO_USER
 repoPath=$(pwd)
 

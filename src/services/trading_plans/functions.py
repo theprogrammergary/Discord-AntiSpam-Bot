@@ -10,6 +10,7 @@ from discord import Embed, HTTPException, TextChannel
 # custom imports
 import config
 import services.shared.functions as shared
+from config import logger
 
 # vars
 required_chars: int = 200
@@ -23,9 +24,10 @@ async def check_trading_plan(bot, discord, message) -> None:
     if not in_trading_plan(message=message):
         return
 
-    if not valid_trading_plan(message=message) and not mod_or_bot(
-        bot=bot, message=message
-    ):
+    valid_plan: bool = valid_trading_plan(message=message)
+    moderator: bool = await mod_or_bot(bot=bot, message=message)
+
+    if not valid_plan and not moderator:
         await handle_invalid_post(discord=discord, message=message)
         return
 
@@ -66,9 +68,10 @@ async def mod_or_bot(bot, message) -> bool:
         bot=bot, guild_id=message.author.guild.id
     )
 
-    return (
-        mod_info is not None and message.author.id in mod_info[1]
-    ) or message.author.bot
+    if message.author.bot:
+        return True
+
+    return mod_info is not None and message.author.id in mod_info[1]
 
 
 def valid_trading_plan(message) -> bool:
@@ -130,9 +133,9 @@ async def handle_invalid_post(discord, message) -> None:
 
     async def log(discord, message) -> None:
         msg: str = (
-            "⚠️ **__INVALID TRADING PLAN IN__**"
+            f"⚠️ **__INVALID TRADING PLAN IN {message.channel.name}__**"
             f"\n> - {message.author.mention}"
-            f"\n> - {message.channel.name} - '"
+            f"\n> - content: '{message.content}'"
         )
         await shared.log_event(discord=discord, member=message.author, result_msg=msg)
 
@@ -171,6 +174,7 @@ async def handle_valid_post(bot, message) -> None:
             title="💡 **__New Trading Plan!__**",
             description=embed_description,
             color=0x00A473,
+            url=message_link,
         )
 
         if message.author.display_avatar.url:
