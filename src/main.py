@@ -66,8 +66,8 @@ async def on_member_update(before, after) -> None:
     """
     await imposter.member_updated(bot=bot, discord=discord, before=before, after=after)
 
-    if before.roles != after.roles:
-        await notifications.check_new_roles(bot=bot, before=before, after=after)
+    # if before.roles != after.roles:
+    # await notifications.check_new_roles(bot, before, after)
 
 
 @bot.event
@@ -136,7 +136,7 @@ async def verify_command(
 
 
 @bot.tree.command(
-    name="apex", description="Upload or Paste an Apex Funded/Payout Certificate"
+    name="apex", description="Upload or paste an Apex Funded/Payout Certificate"
 )
 @app_commands.describe(image="Upload an image attachment")
 async def upload_image(
@@ -160,6 +160,40 @@ async def upload_image(
         )
 
         await interaction.edit_original_response(content=response)
+
+    except Exception as e:  # pylint: disable=W0718
+        logger.error(f"Error in apex upload command - {e}")
+
+        await interaction.response.send_message(
+            content="WHOOPS....we messed up blame gary.", ephemeral=True
+        )
+
+
+@bot.tree.command(name="new_funded", description="Give a user funded role")
+@app_commands.describe(
+    user="User to give funded role", type="1 for passed eval, 2 for payout"
+)
+async def give_funded(
+    interaction: discord.Interaction, user: discord.User, type: int
+) -> None:
+    """
+    Give a user a funded role
+
+    Args:
+        interaction (discord.Interaction): discord.Interaction
+        user (discord.User): User to give funded role
+    """
+
+    try:
+        await interaction.response.send_message(
+            content="...Please Wait ⏳", ephemeral=True
+        )
+
+        await funded_roles.handle_valid_post(
+            bot=bot, interaction=interaction, receiver=user.id, result=type
+        )
+
+        await interaction.edit_original_response(content="Done")
 
     except Exception as e:  # pylint: disable=W0718
         logger.error(f"Error in apex upload command - {e}")
