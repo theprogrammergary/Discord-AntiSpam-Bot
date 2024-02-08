@@ -51,7 +51,7 @@ FUNDED_PAYOUT: str = os.path.join(
 FUNDED_VIDEO: str = "https://www.youtube.com/watch?v=YDRdaAMJvcM"
 FUNDED_LINK: str = " https://www.tbm.gg/apex"
 FUNDED_ROLE_LINK: str = (
-    "https://discord.com/channels/668989780398440466/1199451449810243655"
+    "https://discord.com/channels/668989780398440466/1204918007869214851"
 )
 
 FUNDED_ICON: str = (
