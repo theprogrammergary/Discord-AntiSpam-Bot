@@ -4,15 +4,17 @@ Service that manages the funded roles channel
 
 # standard imports
 import os
-from typing import Literal
+from typing import Dict
 
 import cv2
 import discord
+from discord.ui import Button, View
 from skimage import color, io, metrics
 
 # custom imports
 import config
 import services.shared.functions as shared
+from config import logger
 
 
 async def remove_posts(bot, message) -> None:
@@ -35,7 +37,7 @@ async def process_funded_cert(
 ) -> str:
     """Check funded channel post"""
 
-    result: Literal[0, 1, 2] = 0
+    result: int = 0
     result_msg: str = ""
     result, result_msg = await grade_certificates(interaction=interaction, image=image)
 
@@ -45,19 +47,27 @@ async def process_funded_cert(
 
     congrats_emoji: str = "<a:1_gg_spin:1201211174633603132>"
     if result == 2:
-        await handle_valid_post(bot=bot, interaction=interaction)
-        return f"Congrats on your Apex Trader Funding payout! - {congrats_emoji}"
+        await handle_valid_post(
+            bot=bot,
+            interaction=interaction,
+            receiver=interaction.user.id,
+            result=result,
+        )
+        return f"✅ Congrats on your Apex Trader Funding Payout! - {congrats_emoji}"
 
     elif result == 1:
-        await handle_valid_post(bot=bot, interaction=interaction)
-        return (
-            f"Congrats on getting funded with Apex Trader Funding! - {congrats_emoji}"
+        await handle_valid_post(
+            bot=bot,
+            interaction=interaction,
+            receiver=interaction.user.id,
+            result=result,
         )
+        return f"✅ Congrats on passing an Apex Trader Funding Evaluation! - {congrats_emoji}"
 
     invalid_msg: str = (
-        "⚠️ We were unable to verify your certificate. "
+        "❌ We were unable to verify your certificate. "
         "Please try again and be sure to upload a screenshot of just "
-        "the certificate."
+        "the certificate by cropping out anything else. \n\nThanks!"
     )
     return invalid_msg
 
@@ -104,7 +114,7 @@ async def mod_or_bot(bot, message) -> bool:
 
 async def grade_certificates(
     interaction: discord.Interaction, image: discord.Attachment
-) -> tuple[Literal[1], str] | tuple[Literal[2], str] | tuple[Literal[0], str]:
+) -> tuple[int, str] | tuple[int, str] | tuple[int, str]:
     """
     Checks that a posted funded message contains a funded certificate
 
@@ -118,14 +128,14 @@ async def grade_certificates(
     async def save_image(
         interaction: discord.Interaction, image: discord.Attachment
     ) -> str:
-        user_image_path: str = os.path.join(
+        user_path: str = os.path.join(
             config.FUNDED_USER_CERTIFICATE, f"{interaction.user.id}.png"
         )
 
-        with open(file=user_image_path, mode="wb") as file:
+        with open(file=user_path, mode="wb") as file:
             await image.save(fp=file)
 
-        return user_image_path
+        return user_path
 
     async def delete_image(image_path: str) -> None:
         """Delete temp user image
@@ -137,9 +147,9 @@ async def grade_certificates(
         if os.path.exists(path=image_path):
             os.remove(path=image_path)
 
-    def grade_certificate(certificate_img_path: str, user_image_path: str) -> int:
-        image1 = io.imread(fname=certificate_img_path)
-        image2 = io.imread(fname=user_image_path)
+    def grade_certificate(cert_path: str, user_path: str) -> int:
+        image1 = io.imread(fname=cert_path)
+        image2 = io.imread(fname=user_path)
 
         if image1.size <= 0 or image2.size <= 0:
             return 0
@@ -168,9 +178,31 @@ async def grade_certificates(
 
         return ssim_score
 
-    event_type: str = "APEX CERTIFICATE"
-    required_similarity: int = 70
+    def process_scores(scores: Dict[str, int]) -> tuple[int, str]:
 
+        max_certificate: str = max(scores.items(), key=lambda x: x[1])[0]
+        required_similarity: int = 77
+
+        if scores[max_certificate] < required_similarity:
+            invalid_msg: str = (
+                f"❌ **__INVALID {event_type}__**"
+                f"\n> - <@{interaction.user.id}>"
+                f"\n> - {max_certificate} was the highest with {scores[max_certificate]}%"
+                f"\n> - {image.url}"
+            )
+            return 0, invalid_msg
+
+        result_type: int = 1 if max_certificate in ["RITHMIC", "TRADOVATE"] else 2
+        result_message: str = (
+            f"💰 **__{max_certificate} {event_type}__**"
+            f"\n> - <@{interaction.user.id}>"
+            f"\n> - {scores[max_certificate]}% similar"
+            f"\n> - {image.url}"
+        )
+
+        return result_type, result_message
+
+    event_type: str = "APEX CERTIFICATE"
     if not image:
         no_img_msg: str = (
             f"⚠️ **__INVALID {event_type}__**"
@@ -180,60 +212,137 @@ async def grade_certificates(
 
         return 0, no_img_msg
 
-    user_image_path: str = await save_image(interaction=interaction, image=image)
+    user_path: str = await save_image(interaction=interaction, image=image)
 
-    payout_certificate: int = grade_certificate(
-        certificate_img_path=config.FUNDED_PAYOUT, user_image_path=user_image_path
-    )
-    if payout_certificate >= required_similarity:
-        payout_msg: str = (
-            f"💰 **__PAYOUT {event_type}__**"
-            f"\n> - <@{interaction.user.id}>"
-            f"\n> - {payout_certificate}% similar"
-            f"\n> - {image.url}"
+    try:
+        scores: Dict[str, int] = {
+            "PAYOUT": grade_certificate(
+                cert_path=config.FUNDED_PAYOUT, user_path=user_path
+            ),
+            "RITHMIC": grade_certificate(
+                cert_path=config.FUNDED_RITHMIC, user_path=user_path
+            ),
+            "TRADOVATE": grade_certificate(
+                cert_path=config.FUNDED_TRADOVATE, user_path=user_path
+            ),
+        }
+
+        result, result_msg = process_scores(scores=scores)
+        logger.info(
+            {
+                "username": interaction.user.name,
+                "user_id": interaction.user.id,
+                "scores": scores,
+                "result": result,
+                "result_msg": result_msg,
+            }
         )
-        return 2, payout_msg
 
-    rithmic_certificate: int = grade_certificate(
-        certificate_img_path=config.FUNDED_RITHMIC, user_image_path=user_image_path
-    )
-    if rithmic_certificate >= required_similarity:
-        rithmic_msg: str = (
-            f"💰 **__FUNDED RITHMIC {event_type}__**"
-            f"\n> - <@{interaction.user.id}>"
-            f"\n> - {rithmic_certificate}% similar"
-            f"\n> - {image.url}"
+        return result, result_msg
+
+    finally:
+        await delete_image(image_path=user_path)
+
+
+async def handle_valid_post(
+    bot: discord.Client, interaction: discord.Interaction, receiver: int, result: int
+) -> None:
+
+    async def send_notification(
+        bot: discord.Client, member: discord.Member, result: int
+    ) -> None:
+        if not config.FUNDED_SUCCESS_CHANNEL_ID:
+            return
+        channel = bot.get_channel(int(config.FUNDED_SUCCESS_CHANNEL_ID))
+        if channel is None or not isinstance(channel, discord.TextChannel):
+            return
+
+        embed_type: str = "payout" if result == 2 else "passed evaluation"
+        embed_title: str = (
+            "🥇 **__New Trader Payout__**"
+            if result == 2
+            else "🏅 **__New Funded Trader__**"
         )
-        return 1, rithmic_msg
-
-    tradovate_certificate: int = grade_certificate(
-        certificate_img_path=config.FUNDED_TRADOVATE, user_image_path=user_image_path
-    )
-    if tradovate_certificate >= required_similarity:
-        tradovate_msg: str = (
-            f"💰 **__FUNDED TRADOVATE {event_type}__**"
-            f"\n> - <@{interaction.user.id}>"
-            f"\n> - {tradovate_certificate}% similar"
-            f"\n> - {image.url}"
+        embed_description: str = (
+            f"{member.mention} just confirmed a {embed_type} from Apex Trader Funding!"
         )
-        return 1, tradovate_msg
+        embed_icon: str = config.PAID_ICON if result == 2 else config.FUNDED_ICON
+        embed_image: str = config.PAID_IMAGE if result == 2 else config.FUNDED_IMAGE
+        embed_icon: str = config.PAID_ICON if result == 2 else config.FUNDED_ICON
 
-    max_similarity: int = max(
-        payout_certificate, tradovate_certificate, rithmic_certificate
+        embed = discord.Embed(
+            title=embed_title,
+            description=embed_description,
+            color=0x008BFF,
+            url=config.FUNDED_VIDEO,
+        )
+
+        if embed_icon:
+            embed.set_thumbnail(url=config.PAID_ICON)
+
+        if embed_image:
+            embed.set_image(url=config.PAID_IMAGE)
+
+        if embed_icon:
+            embed.set_footer(
+                text='Use code "TBM" at APEX for the best available discount.',
+                icon_url=config.GG_ICON,
+            )
+
+        view = View()
+        if config.FUNDED_LINK:
+            btn_apex = Button(
+                label="Get an Apex Evaluation at up to 80% OFF!",
+                url=config.FUNDED_LINK,
+                emoji="🚨",
+            )
+
+            view.add_item(item=btn_apex)
+
+        if config.FUNDED_VIDEO:
+            btn_video = Button(
+                label="What is Apex Trader Funding?",
+                url=config.FUNDED_VIDEO,
+                emoji="💰",
+            )
+
+            view.add_item(item=btn_video)
+
+        if config.FUNDED_ROLE_LINK:
+            btn_funded_role = Button(
+                label="Post your Apex Certificate.",
+                url=config.FUNDED_ROLE_LINK,
+                emoji="✅",
+            )
+
+            view.add_item(item=btn_funded_role)
+
+        await channel.send(embed=embed, view=view)
+
+    guild: discord.Guild | None = interaction.guild
+    if not guild:
+        return
+
+    member: discord.Member | None = await guild.fetch_member(receiver)
+    if not member:
+        return
+
+    payout_role: discord.Role | None = discord.utils.get(
+        guild.roles, id=config.PAID_ROLE
     )
-    invalid_msg: str = (
-        f"❌ **__FUNDED {event_type}__**"
-        f"\n> - <@{interaction.user.id}>"
-        f"\n> - {max_similarity}% was the highest similarity"
-        f"\n> - {image.url}"
+    funded_role: discord.Role | None = discord.utils.get(
+        guild.roles, id=config.FUNDED_ROLE
     )
+    if not payout_role or not funded_role:
+        return
 
-    return 0, invalid_msg
+    if result == 2:
+        await member.add_roles(payout_role, funded_role)
 
+    elif result == 1:
+        await member.add_roles(funded_role)
 
-async def handle_valid_post(bot, interaction) -> None:
+    if member.id == 933144770333786122:
+        return
 
-    # if payout give paid out role and funded role
-    # call function to create notification message
-
-    return
+    await send_notification(bot=bot, member=member, result=result)
