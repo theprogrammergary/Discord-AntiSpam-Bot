@@ -13,7 +13,6 @@ import config
 import services.fun.functions as fun
 import services.funded_roles.functions as funded_roles
 import services.imposter.functions as imposter
-import services.notifications.functions as notifications
 import services.shared.functions as shared
 import services.spam.functions as spam
 import services.trading_plans.functions as trading_plans
@@ -163,18 +162,17 @@ async def upload_image(
 
     except Exception as e:  # pylint: disable=W0718
         logger.error(f"Error in apex upload command - {e}")
-
-        await interaction.response.send_message(
-            content="WHOOPS....we messed up blame gary.", ephemeral=True
+        await interaction.edit_original_response(
+            content="WHOOPS something happened...blame gary."
         )
 
 
 @bot.tree.command(name="new_funded", description="Give a user funded role")
 @app_commands.describe(
-    user="User to give funded role", type="1 for passed eval, 2 for payout"
+    user="User to give funded role", funded_type="1 for passed eval, 2 for payout"
 )
 async def give_funded(
-    interaction: discord.Interaction, user: discord.User, type: int
+    interaction: discord.Interaction, user: discord.User, funded_type: int
 ) -> None:
     """
     Give a user a funded role
@@ -190,16 +188,15 @@ async def give_funded(
         )
 
         await funded_roles.handle_valid_post(
-            bot=bot, interaction=interaction, receiver=user.id, result=type
+            bot=bot, interaction=interaction, receiver=user.id, result=funded_type
         )
 
         await interaction.edit_original_response(content="Done")
 
     except Exception as e:  # pylint: disable=W0718
         logger.error(f"Error in apex upload command - {e}")
-
-        await interaction.response.send_message(
-            content="WHOOPS....we messed up blame gary.", ephemeral=True
+        await interaction.edit_original_response(
+            content="WHOOPS something happened...blame gary."
         )
 
 

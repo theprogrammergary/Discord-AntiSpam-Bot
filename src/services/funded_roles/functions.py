@@ -247,6 +247,14 @@ async def grade_certificates(
 async def handle_valid_post(
     bot: discord.Client, interaction: discord.Interaction, receiver: int, result: int
 ) -> None:
+    """Create an embed notification message for main channel
+
+    Args:
+        bot (discord.Client): _description_
+        interaction (discord.Interaction): _description_
+        receiver (int): _description_
+        result (int): _description_
+    """
 
     async def send_notification(
         bot: discord.Client, member: discord.Member, result: int
@@ -268,7 +276,6 @@ async def handle_valid_post(
         )
         embed_icon: str = config.PAID_ICON if result == 2 else config.FUNDED_ICON
         embed_image: str = config.PAID_IMAGE if result == 2 else config.FUNDED_IMAGE
-        embed_icon: str = config.PAID_ICON if result == 2 else config.FUNDED_ICON
 
         embed = discord.Embed(
             title=embed_title,
@@ -278,10 +285,10 @@ async def handle_valid_post(
         )
 
         if embed_icon:
-            embed.set_thumbnail(url=config.PAID_ICON)
+            embed.set_thumbnail(url=embed_icon)
 
         if embed_image:
-            embed.set_image(url=config.PAID_IMAGE)
+            embed.set_image(url=embed_image)
 
         if embed_icon:
             embed.set_footer(
@@ -342,7 +349,7 @@ async def handle_valid_post(
     elif result == 1:
         await member.add_roles(funded_role)
 
-    if member.id == 933144770333786122:
-        return
+    # if member.id == 933144770333786122:
+    # return
 
     await send_notification(bot=bot, member=member, result=result)
