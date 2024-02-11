@@ -55,24 +55,14 @@ FUNDED_ROLE_LINK: str = (
 )
 
 FUNDED_ICON: str = (
-    "https://cdn.discordapp.com/role-icons/1196869632024379536/"
-    "3539160b2a49805193ca7cc2d09ec480.webp?quality=lossless"
+    "https://cdn.discordapp.com/emojis/1203495067495702540.webp?quality=lossless"
 )
-FUNDED_IMAGE: str = (
-    "https://media1.giphy.com/media/v1."
-    "Y2lkPTc5MGI3NjExaDBkejJuNTVjYmhxNHd6Y2U1amtwbTgzeHYwYmhwZTlsYjFybnp4dSZlcD12"
-    "MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9d1K8Ss20QgmtHbXE3/giphy.gif"
-)
+FUNDED_IMAGE: str = "https://media1.giphy.com/media/9d1K8Ss20QgmtHbXE3/giphy.gif"
 
 PAID_ICON: str = (
     "https://cdn.discordapp.com/emojis/1203495151344029746.webp?quality=lossless"
 )
-PAID_IMAGE: str = (
-    "https://media4.giphy.com/media/v1."
-    "Y2lkPTc5MGI3NjExYzZidTJpbHR2OWdsMDd6MmxldWdrdTZ4YXZ1ZmN5eHpyd3M5eHh3aiZlcD1"
-    "2MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/smyd2ywWabsa4TmIvD/giphy.gif"
-)
-
+PAID_IMAGE: str = "https://media4.giphy.com/media/smyd2ywWabsa4TmIvD/giphy.gif"
 
 GG_ICON: str = (
     "https://cdn.discordapp.com/emojis/1200990322788937748.png?size=40&quality=lossless"
