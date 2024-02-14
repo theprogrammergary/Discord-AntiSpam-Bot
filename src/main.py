@@ -155,7 +155,7 @@ async def upload_image(
         )
 
         response: str = await funded_roles.process_funded_cert(
-            bot=bot, interaction=interaction, image=image
+            bot=bot, interaction=interaction, attachment=image
         )
 
         await interaction.edit_original_response(content=response)
