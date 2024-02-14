@@ -33,13 +33,21 @@ async def remove_posts(bot, message) -> None:
 
 
 async def process_funded_cert(
-    bot: discord.Client, interaction: discord.Interaction, image: discord.Attachment
+    bot: discord.Client,
+    interaction: discord.Interaction,
+    attachment: discord.Attachment,
 ) -> str:
     """Check funded channel post"""
 
+    allowed_types: list[str] = ["image/jpeg", "image/jpg", "image/png"]
+    if attachment.content_type not in allowed_types:
+        return "❌ Invalid file format. Please upload a .jpg, .jpeg, or .png file/screenshot."
+
     result: int = 0
     result_msg: str = ""
-    result, result_msg = await grade_certificates(interaction=interaction, image=image)
+    result, result_msg = await grade_certificates(
+        interaction=interaction, image=attachment
+    )
 
     await shared.log_event(
         discord=discord, member=interaction.user, result_msg=result_msg
