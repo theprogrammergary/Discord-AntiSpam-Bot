@@ -28,10 +28,10 @@ autostart=true
 autorestart=true
 stopasgroup=true
 killasgroup=true
-stderr_logfile=/var/log/${botName}/${botName}.err.log
+stderr_logfile=${repoPath}/${botName}/logs/.sys/.err.log
 stderr_logfile_maxbytes=50MB
 stderr_logfile_backups=10
-stdout_logfile=/var/log/${botName}/${botName}.out.log
+stdout_logfile=${repoPath}/${botName}/logs/.sys/.out.log
 stdout_logfile_maxbytes=50MB
 stdout_logfile_backups=10
 EOF

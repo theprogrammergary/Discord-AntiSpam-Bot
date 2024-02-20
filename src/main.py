@@ -9,6 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+# custom imports
 import config
 import services.fun.functions as fun
 import services.funded_roles.functions as funded_roles
@@ -18,7 +19,7 @@ import services.spam.functions as spam
 import services.trading_plans.functions as trading_plans
 import services.verify.commands as verify_commands
 import services.verify.functions as verify
-from config import logger
+from config import bot_log
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 
@@ -161,7 +162,7 @@ async def upload_image(
         await interaction.edit_original_response(content=response)
 
     except Exception as e:  # pylint: disable=W0718
-        logger.error(f"Error in apex upload command - {e}")
+        bot_log.error(f"Error in apex upload command - {e}")
         await interaction.edit_original_response(
             content="WHOOPS something happened...blame gary."
         )
@@ -194,7 +195,7 @@ async def give_funded(
         await interaction.edit_original_response(content="Done")
 
     except Exception as e:  # pylint: disable=W0718
-        logger.error(f"Error in apex upload command - {e}")
+        bot_log.error(f"Error in apex upload command - {e}")
         await interaction.edit_original_response(
             content="WHOOPS something happened...blame gary."
         )
@@ -202,7 +203,7 @@ async def give_funded(
 
 if __name__ == "__main__":
     if config.BOT_TOKEN is None:
-        logger.critical("BOT_TOKEN is not configured.")
+        bot_log.critical("BOT_TOKEN is not configured.")
         sys.exit(1)
 
-    bot.run(token=config.BOT_TOKEN)
+    bot.run(token=config.BOT_TOKEN, root_logger=True)

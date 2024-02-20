@@ -14,7 +14,7 @@ from skimage import color, io, metrics
 # custom imports
 import config
 import services.shared.functions as shared
-from config import logger
+from config import bot_log
 
 
 async def remove_posts(bot, message) -> None:
@@ -236,7 +236,7 @@ async def grade_certificates(
         }
 
         result, result_msg = process_scores(scores=scores)
-        logger.info(
+        bot_log.info(
             {
                 "username": interaction.user.name,
                 "user_id": interaction.user.id,

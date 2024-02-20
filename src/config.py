@@ -3,10 +3,12 @@ Loads environment vars from .env file
 """
 
 # imports
+import logging  # pylint:disable = W0611
 import os
+from logging.config import dictConfig
+from logging.handlers import TimedRotatingFileHandler  # pylint:disable = W0611
 
 from dotenv import load_dotenv
-from loguru import logger
 
 # environment vars
 load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".setup", ".env"))
@@ -88,15 +90,54 @@ flood_emojis: list[str] = [
 ]
 
 
-# logger
-logger.remove()
-logger.add(
-    sink="./logs/{time:YYYY-MM-DD}.log",
-    rotation="00:00",
-    retention="14 days",
-    backtrace=True,
-    format=(
-        "\n{time:YYYY-MM-DD HH:mm:ss} {level.icon} {level} \n"
-        '{file}>"{function}">{line} \n    {message} \n'
-    ),
-)
+# logging
+LOGGING_CONFIG = {
+    "version": 1,
+    "disabled_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": (
+                "\n\n%(asctime)s"
+                "\n%(levelname)s - %(name)s"
+                "\n%(filename)s>'%(funcName)s'>%(lineno)d"
+                "\n%(message)s"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "./logs/bot.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 14,
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "./logs/error.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 14,
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "Bot": {
+            "handlers": ["file", "error_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "discord": {
+            "handlers": ["file", "error_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+dictConfig(config=LOGGING_CONFIG)
+bot_log: logging.Logger = logging.getLogger(name="Bot")

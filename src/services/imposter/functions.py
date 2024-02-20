@@ -11,12 +11,11 @@ from typing import List, Literal
 import unidecode
 
 import services.shared.functions as shared
-from config import logger
+from config import bot_log
 from services.imposter.vars import IMPOSTER_BAN_MSG, IMPOSTER_KICK_MSG, MAPPING
 
 
 # entry functions
-@logger.catch
 async def member_joined(bot, discord, member) -> None:
     """
     Service to handle when a member joins a server.
@@ -38,7 +37,6 @@ async def member_joined(bot, discord, member) -> None:
     )
 
 
-@logger.catch
 async def member_updated(bot, discord, before, after) -> None:
     """
     Service to handle when a member updates their server profile.
@@ -63,7 +61,6 @@ async def member_updated(bot, discord, before, after) -> None:
     )
 
 
-@logger.catch
 async def user_updated(bot, discord, before, after) -> None:
     """
     Service to handle when a member updates their user profile.
@@ -239,7 +236,7 @@ def is_imposter(
         clean_username(username=discord_nickname) if has_nickname else cleaned_username
     )
 
-    logger.info(
+    bot_log.info(
         f"• CHECKING NAMES {event_type}: {cleaned_username}, {cleaned_nickname}"
     )
     if names_are_too_small(username=cleaned_username, nickname=cleaned_nickname):
@@ -249,7 +246,7 @@ def is_imposter(
             "\n> - BOTH USERNAMES TOO SMALL"
         )
 
-        logger.info(message)
+        bot_log.info(message)
         return 1, message
 
     highest_similarity: float
@@ -264,7 +261,7 @@ def is_imposter(
             f"\n> - <@{discord_id}>"
             f"\n> - {highest_similarity_name}"
         )
-        logger.info(message)
+        bot_log.info(message)
         return 2, message
 
     elif highest_similarity >= 70.00:
@@ -273,7 +270,7 @@ def is_imposter(
             f"\n> - <@{discord_id}>"
             f"\n> - {highest_similarity_name}"
         )
-        logger.info(message)
+        bot_log.info(message)
         return 1, message
 
     else:
@@ -282,7 +279,7 @@ def is_imposter(
             f"\n> - <@{discord_id}>"
             f"\n> - {highest_similarity_name}"
         )
-        logger.info(message)
+        bot_log.info(message)
         return 0, message
 
 
@@ -322,7 +319,7 @@ def get_highest_similarity(
 
     for mod in mod_names:
         nickname_similarity: float = get_name_similarity(string1=nickname, string2=mod)
-        logger.info(f"{nickname_similarity}% {nickname} (nick) vs {mod}")
+        bot_log.info(f"{nickname_similarity}% {nickname} (nick) vs {mod}")
 
         if nickname_similarity > highest_similarity:
             highest_similarity = nickname_similarity
@@ -331,7 +328,7 @@ def get_highest_similarity(
             )
 
         username_similarity: float = get_name_similarity(string1=username, string2=mod)
-        logger.info(f"{username_similarity}% {username} (nick) vs {mod}")
+        bot_log.info(f"{username_similarity}% {username} (nick) vs {mod}")
 
         if username_similarity > highest_similarity:
             highest_similarity = username_similarity

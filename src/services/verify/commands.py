@@ -8,12 +8,12 @@ from typing import Any
 
 import config
 import services.verify.functions as verify
-from config import logger
+from config import bot_log
 from services.verify.vars import reaction_emojis
 
-
 # entry functions
-@logger.catch
+
+
 async def command_new_verification(
     discord,
     bot,
