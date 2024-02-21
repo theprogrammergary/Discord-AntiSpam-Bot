@@ -118,7 +118,7 @@ LOGGING_CONFIG = {
         "error_file": {
             "level": "ERROR",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "./logs/error.log",
+            "filename": "./logs/error/error.log",
             "when": "midnight",
             "interval": 1,
             "backupCount": 14,
