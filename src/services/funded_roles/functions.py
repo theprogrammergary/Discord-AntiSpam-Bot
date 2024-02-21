@@ -25,10 +25,10 @@ async def remove_posts(bot, message) -> None:
         message (discord.message): discord.message
     """
 
-    if await mod_or_bot(bot=bot, message=message):
-        return
-
     if in_funded(message=message):
+        if await mod_or_bot(bot=bot, message=message):
+            return
+
         await message.delete()
 
 
@@ -112,6 +112,9 @@ async def mod_or_bot(bot, message) -> bool:
 
     if message.author.bot:
         return True
+
+    if message.guild is None:
+        return False
 
     mod_info: tuple[list[str], list[int]] | None = await shared.get_mod_info(
         bot=bot, guild_id=message.author.guild.id
