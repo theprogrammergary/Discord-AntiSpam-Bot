@@ -128,11 +128,19 @@ LOGGING_CONFIG = {
             "backupCount": 0,
             "formatter": "verbose",
         },
+        "debug_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "./logs/debug.log",
+            "when": "W0",
+            "backupCount": 0,
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         "Bot": {
-            "handlers": ["file", "error_file"],
-            "level": "INFO",
+            "handlers": ["file", "error_file", "debug_file"],
+            "level": "DEBUG",
             "propagate": False,
         },
         "discord": {
@@ -143,5 +151,6 @@ LOGGING_CONFIG = {
     },
 }
 
+
 dictConfig(config=LOGGING_CONFIG)
-bot_log: logging.Logger = logging.getLogger(name="Bot")
+log: logging.Logger = logging.getLogger(name="Bot")

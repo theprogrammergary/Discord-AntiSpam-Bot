@@ -6,7 +6,7 @@ Shared services for the app
 from typing import Any
 
 import config
-from config import bot_log
+from config import log
 from services.shared.vars import NA_MOD_NAMES_LIST
 
 
@@ -19,7 +19,7 @@ async def log_in(bot, discord) -> None:
         discord (discord): Discord object
     """
 
-    bot_log.info(f"Logged in as {bot.user.name}")
+    log.debug(f"Logged in as {bot.user.name}")
 
     await bot.change_presence(
         status=discord.Status.online,
@@ -46,7 +46,7 @@ async def get_mod_info(bot, guild_id: int) -> tuple[list[str], list[int]] | None
 
     guild = bot.get_guild(guild_id)
     if guild is None:
-        bot_log.critical(f"get_mod_info > unable to find guild with ID: {guild_id}")
+        log.critical(f"get_mod_info > unable to find guild with ID: {guild_id}")
         return mod_names, mod_ids
 
     for member in guild.members:

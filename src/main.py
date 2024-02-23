@@ -19,7 +19,7 @@ import services.spam.functions as spam
 import services.trading_plans.functions as trading_plans
 import services.verify.commands as verify_commands
 import services.verify.functions as verify
-from config import bot_log
+from config import log
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 
@@ -46,8 +46,10 @@ async def on_raw_reaction_add(payload) -> None:
     channel: discord.GuildChannel | None = guild.get_channel(payload.channel_id)  # type: ignore
 
     if channel and channel.name == config.VERIFY_CHANNEL:
+        log.debug(msg="check_verification")
         await verify.check_verification(bot=bot, discord=discord, payload=payload)
     else:
+        log.debug(msg="flood_emoji")
         await fun.flood_emoji(bot=bot, discord=discord, payload=payload)
 
 
@@ -56,6 +58,7 @@ async def on_member_join(member) -> None:
     """
     Controller for on_member_join event.
     """
+    log.debug(msg="imposter.member_joined")
     await imposter.member_joined(bot=bot, discord=discord, member=member)
 
 
@@ -64,6 +67,7 @@ async def on_member_update(before, after) -> None:
     """
     Controller for on_member_update event.
     """
+    log.debug(msg="imposter.member_updated")
     await imposter.member_updated(bot=bot, discord=discord, before=before, after=after)
 
 
@@ -72,6 +76,7 @@ async def on_user_update(before, after) -> None:
     """
     Controller for on_user_update event.
     """
+    log.debug(msg="imposter.user_updated")
     await imposter.user_updated(bot=bot, discord=discord, before=before, after=after)
 
 
@@ -80,9 +85,13 @@ async def on_message(message) -> None:
     """
     Controller for on_message event.
     """
-
+    log.debug(msg="spam.check_msg_for_spam")
     await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
+
+    log.debug(msg="trading_plans.check_trading_plan")
     await trading_plans.check_trading_plan(bot=bot, discord=discord, message=message)
+
+    log.debug(msg="funded_roles.remove_posts")
     await funded_roles.remove_posts(bot=bot, message=message)
 
 
@@ -159,7 +168,7 @@ async def upload_image(
         await interaction.edit_original_response(content=response)
 
     except Exception as e:  # pylint: disable=W0718
-        bot_log.error(f"Error in apex upload command - {e}")
+        log.error(msg=f"Error in apex upload command - {e}")
         await interaction.edit_original_response(
             content="WHOOPS something happened...blame gary."
         )
@@ -192,7 +201,7 @@ async def give_funded(
         await interaction.edit_original_response(content="Done")
 
     except Exception as e:  # pylint: disable=W0718
-        bot_log.error(f"Error in apex upload command - {e}")
+        log.error(msg=f"Error in apex upload command - {e}")
         await interaction.edit_original_response(
             content="WHOOPS something happened...blame gary."
         )
@@ -200,7 +209,7 @@ async def give_funded(
 
 if __name__ == "__main__":
     if config.BOT_TOKEN is None:
-        bot_log.critical("BOT_TOKEN is not configured.")
+        log.critical(msg="BOT_TOKEN is not configured.")
         sys.exit(1)
 
     bot.run(token=config.BOT_TOKEN, root_logger=True)
