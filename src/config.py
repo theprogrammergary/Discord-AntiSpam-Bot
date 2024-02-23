@@ -40,6 +40,12 @@ PAID_ROLE: int | None = int(PAID_ROLE_ID) if PAID_ROLE_ID else None
 FUNDED_USER_CERTIFICATE: str = os.path.join(
     os.getcwd(), "src", "services", "funded_roles", "temp_images"
 )
+FUNDED_TRADOVATE_NEW: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "images", "new_tradovate.png"
+)
+FUNDED_RITHMIC_NEW: str = os.path.join(
+    os.getcwd(), "src", "services", "funded_roles", "images", "new_rithmic.png"
+)
 FUNDED_TRADOVATE: str = os.path.join(
     os.getcwd(), "src", "services", "funded_roles", "images", "tradovate.png"
 )
@@ -110,18 +116,16 @@ LOGGING_CONFIG = {
             "level": "INFO",
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": "./logs/bot.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 14,
+            "when": "W0",
+            "backupCount": 0,
             "formatter": "verbose",
         },
         "error_file": {
             "level": "ERROR",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "./logs/error/error.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 14,
+            "filename": "./logs/error.log",
+            "when": "W0",
+            "backupCount": 0,
             "formatter": "verbose",
         },
     },

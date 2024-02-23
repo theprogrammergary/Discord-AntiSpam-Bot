@@ -9,7 +9,7 @@ from typing import Dict
 import cv2
 import discord
 from discord.ui import Button, View
-from skimage import color, io, metrics
+from sewar import uqi
 
 # custom imports
 import config
@@ -159,8 +159,8 @@ async def grade_certificates(
             os.remove(path=image_path)
 
     def grade_certificate(cert_path: str, user_path: str) -> int:
-        image1 = io.imread(fname=cert_path)
-        image2 = io.imread(fname=user_path)
+        image1 = cv2.imread(filename=cert_path)
+        image2 = cv2.imread(filename=user_path)
 
         if image1.size <= 0 or image2.size <= 0:
             return 0
@@ -170,29 +170,24 @@ async def grade_certificates(
             return 0
 
         if image1.shape != image2.shape:
-            image2 = cv2.resize(image2, (image1.shape[1], image1.shape[0]))
-
-        if image1.shape[2] == 4:
-            image1 = image1[:, :, :3]
-        if image2.shape[2] == 4:
-            image2 = image2[:, :, :3]
-
-        image1_gray = color.rgb2gray(image1)
-        image2_gray = color.rgb2gray(image2)
-
-        ssim_score = int(
-            metrics.structural_similarity(
-                im1=image1_gray, im2=image2_gray, data_range=1.0
+            image2 = cv2.resize(
+                src=image2,
+                dsize=(image1.shape[1], image1.shape[0]),
+                interpolation=cv2.INTER_AREA,
             )
-            * 100
-        )
 
-        return ssim_score
+        gray_image1 = cv2.cvtColor(src=image1, code=cv2.COLOR_BGR2GRAY)
+        gray_image2 = cv2.cvtColor(src=image2, code=cv2.COLOR_BGR2GRAY)
+
+        certificate = cv2.GaussianBlur(src=gray_image1, ksize=(21, 21), sigmaX=0)
+        user_image = cv2.GaussianBlur(src=gray_image2, ksize=(21, 21), sigmaX=0)
+
+        return int(uqi(GT=certificate, P=user_image) * 100)
 
     def process_scores(scores: Dict[str, int]) -> tuple[int, str]:
 
         max_certificate: str = max(scores.items(), key=lambda x: x[1])[0]
-        required_similarity: int = 77
+        required_similarity: int = 79
 
         if scores[max_certificate] < required_similarity:
             invalid_msg: str = (
@@ -203,7 +198,12 @@ async def grade_certificates(
             )
             return 0, invalid_msg
 
-        result_type: int = 1 if max_certificate in ["RITHMIC", "TRADOVATE"] else 2
+        result_type: int = (
+            1
+            if max_certificate
+            in ["TRADOVATE NEW", "RITHMIC NEW", "RITHMIC", "TRADOVATE"]
+            else 2
+        )
         result_message: str = (
             f"💰 **__{max_certificate} {event_type}__**"
             f"\n> - <@{interaction.user.id}>"
@@ -227,14 +227,20 @@ async def grade_certificates(
 
     try:
         scores: Dict[str, int] = {
-            "PAYOUT": grade_certificate(
-                cert_path=config.FUNDED_PAYOUT, user_path=user_path
+            "TRADOVATE NEW": grade_certificate(
+                cert_path=config.FUNDED_TRADOVATE_NEW, user_path=user_path
+            ),
+            "RITHMIC NEW": grade_certificate(
+                cert_path=config.FUNDED_RITHMIC_NEW, user_path=user_path
+            ),
+            "TRADOVATE": grade_certificate(
+                cert_path=config.FUNDED_TRADOVATE, user_path=user_path
             ),
             "RITHMIC": grade_certificate(
                 cert_path=config.FUNDED_RITHMIC, user_path=user_path
             ),
-            "TRADOVATE": grade_certificate(
-                cert_path=config.FUNDED_TRADOVATE, user_path=user_path
+            "PAYOUT": grade_certificate(
+                cert_path=config.FUNDED_PAYOUT, user_path=user_path
             ),
         }
 
@@ -360,7 +366,7 @@ async def handle_valid_post(
     elif result == 1:
         await member.add_roles(funded_role)
 
-    # if member.id == 933144770333786122:
-    # return
+    if member.id == 933144770333786122:
+        return
 
     await send_notification(bot=bot, member=member, result=result)
