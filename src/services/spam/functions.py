@@ -6,7 +6,7 @@ import re
 from typing import List
 
 import services.shared.functions as shared
-from config import bot_log
+from config import log
 
 
 def is_spam(text: str) -> bool:
@@ -76,7 +76,7 @@ async def check_msg_for_spam(bot, discord, message) -> None:
             f"\n> - Content: {clean_msg_content}"
         )
 
-        bot_log.info(log_message)
+        log.info(log_message)
         await shared.log_event(
             discord=discord, member=message.author, result_msg=log_message
         )

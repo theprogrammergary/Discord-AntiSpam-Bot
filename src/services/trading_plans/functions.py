@@ -10,7 +10,7 @@ from discord import Embed, HTTPException, TextChannel
 # custom imports
 import config
 import services.shared.functions as shared
-from config import bot_log
+from config import log
 
 # vars
 required_chars: int = 200

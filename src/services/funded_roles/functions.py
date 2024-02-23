@@ -14,7 +14,7 @@ from sewar import uqi
 # custom imports
 import config
 import services.shared.functions as shared
-from config import bot_log
+from config import log
 
 
 async def remove_posts(bot, message) -> None:
@@ -245,7 +245,7 @@ async def grade_certificates(
         }
 
         result, result_msg = process_scores(scores=scores)
-        bot_log.info(
+        log.info(
             {
                 "username": interaction.user.name,
                 "user_id": interaction.user.id,

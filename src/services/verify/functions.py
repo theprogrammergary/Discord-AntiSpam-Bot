@@ -11,7 +11,7 @@ from typing import Any, List
 import config
 import services.shared.functions as shared
 import services.verify.functions as verify
-from config import bot_log
+from config import log
 from services.verify.vars import reaction_emojis
 
 VERIFICATION_FILEPATH: str = os.path.join(
@@ -31,7 +31,6 @@ async def check_verification(bot, discord, payload) -> None:
         discord (_type_): Discord object
         payload (_type_): Discord on_raw_reation_add payload object
     """
-
     member = payload.member
 
     current_verify: dict[str, str] = verify.load_verify_answer()
@@ -51,17 +50,17 @@ async def check_verification(bot, discord, payload) -> None:
 
     try:
         if not is_correct_answer(reaction=reaction, current_verify=current_verify):
-            bot_log.info(f"• FAILED VERFIY: {member}, {member.nick}")
+            log.info(f"• FAILED VERFIY: {member}, {member.nick}")
             await reaction.remove(member)
             await reaction.message.guild.kick(member)
             return
 
-        bot_log.info(f"• SUCCESSFUL VERFIY: {member}, {member.nick}")
+        log.info(f"• SUCCESSFUL VERFIY: {member}, {member.nick}")
         await reaction.remove(member)
         await give_verification(discord=discord, reaction=reaction, user=member)
 
     except Exception as e:  # pylint: disable=broad-exception-caught, unused-variable
-        bot_log.error(f"• EXCEPTION: {member} --- {e}")
+        log.error(f"• EXCEPTION: {member} --- {e}")
 
 
 # helper functions
@@ -92,7 +91,7 @@ def load_verify_answer() -> dict[str, str]:
             values = json.load(fp=file)
 
     except (FileNotFoundError, json.JSONDecodeError):
-        bot_log.critical("Could not load verification answers.")
+        log.critical("Could not load verification answers.")
 
     return values
 
