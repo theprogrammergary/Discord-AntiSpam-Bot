@@ -66,9 +66,6 @@ async def on_member_update(before, after) -> None:
     """
     await imposter.member_updated(bot=bot, discord=discord, before=before, after=after)
 
-    # if before.roles != after.roles:
-    # await notifications.check_new_roles(bot, before, after)
-
 
 @bot.event
 async def on_user_update(before, after) -> None:

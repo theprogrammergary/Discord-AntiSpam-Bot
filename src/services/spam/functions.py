@@ -22,12 +22,13 @@ def is_spam(text: str) -> bool:
 
     spam_patterns: list[str] = [
         r"@everyone",
-        r"US stock investment group",
+        r"us stock investment group",
         r"https://chat\.whatsapp\.com/\w+",
+        r"i will teach",
     ]
 
     for pattern in spam_patterns:
-        if re.search(pattern=pattern, string=text, flags=re.IGNORECASE):
+        if re.search(pattern=pattern, string=text.lower(), flags=re.IGNORECASE):
             return True
 
     return False
