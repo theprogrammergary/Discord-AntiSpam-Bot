@@ -174,7 +174,7 @@ async def upload_image(
         )
 
 
-@bot.tree.command(name="new_funded", description="Give a user funded role")
+@bot.tree.command(name="manual_apex", description="Give a user funded role")
 @app_commands.describe(
     user="User to give funded role", funded_type="1 for passed eval, 2 for payout"
 )
