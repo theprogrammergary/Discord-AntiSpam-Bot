@@ -97,11 +97,7 @@ def valid_trading_plan(message) -> bool:
         ) - datetime.timedelta(days=required_days)
         return message.author.joined_at <= days_ago
 
-    if (
-        has_characters(message=message)
-        and has_image(message=message)
-        and has_clout(message=message)
-    ):
+    if has_characters(message=message) and has_image(message=message):
         return True
 
     return False
@@ -123,7 +119,6 @@ async def handle_invalid_post(discord, message) -> None:
                 "**__Trading Plan REQUIREMENTS:__**\n"
                 f"   -Have {required_chars} characters of explanation\n"
                 f"   -Have at least {required_images} image\n"
-                f"   -Be a member of the server for at least {required_days} days\n"
                 "\n\n-Thanks!"
             )
             await author.send(invalid_msg)
