@@ -31,7 +31,12 @@ def is_spam(text: str) -> bool:
         r"precision funding",
         r"precision trader funding",
         r"precision trading",
-        r"https://precisionfunding\.vip/\S*"
+        r"https://precisionfunding\.vip/\S*",
+        r"https://discord.gg/precisionfunding*",
+        r"grab it before it gets deleted:"
+        r"$50 gift card"
+        r"steamcommunity\.com/\S*"
+
     ]
 
     for pattern in spam_patterns:
@@ -55,6 +60,7 @@ async def check_msg_for_spam(bot, discord, message) -> None:
 
     msg_content: str = message.content
     found_spam: bool = is_spam(text=msg_content)
+
 
     if found_spam:
         member = message.author

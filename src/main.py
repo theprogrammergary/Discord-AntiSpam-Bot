@@ -8,6 +8,8 @@ import sys
 import discord
 from discord import app_commands
 from discord.ext import commands
+from typing import Literal
+
 
 # custom imports
 import config
@@ -16,6 +18,7 @@ import services.funded_roles.functions as funded_roles
 import services.imposter.functions as imposter
 import services.shared.functions as shared
 import services.spam.functions as spam
+import services.timeout_words.functions as timeout_words
 import services.trading_plans.functions as trading_plans
 import services.verify.commands as verify_commands
 import services.verify.functions as verify
@@ -88,6 +91,9 @@ async def on_message(message) -> None:
     log.debug(msg="spam.check_msg_for_spam")
     await spam.check_msg_for_spam(bot=bot, discord=discord, message=message)
 
+    log.debug(msg="timeout_words.check_msg_for_timeout")
+    await timeout_words.check_msg(bot=bot, discord=discord, message=message)
+
     log.debug(msg="trading_plans.check_trading_plan")
     await trading_plans.check_trading_plan(bot=bot, discord=discord, message=message)
 
@@ -101,6 +107,74 @@ async def on_command_error() -> None:
     Controller for on_command_error event.
     """
     return
+
+
+
+@bot.tree.command(name="word_timeout_create")
+@app_commands.describe(word="Word to restrict",
+                        active_hours="How long to keep word_timeout active", 
+                        dm_message="Message to send to the user when they post a word_timeout")
+@app_commands.choices(active_hours=[
+    app_commands.Choice(name="3hr", value="3hr"),
+    app_commands.Choice(name="24hr", value="24hr"),
+    app_commands.Choice(name="48hr", value="48hr"),
+    app_commands.Choice(name="1wk", value="1wk"),
+    app_commands.Choice(name="forever", value="forever"),
+])
+async def word_timeout_create(interaction: discord.Interaction,
+                            word: str,
+                            active_hours: Literal['3hr', '24hr', '48hr', '1wk', 'forever'],
+                            dm_message: str) -> None:
+    """
+    Create a timeout word.
+    """
+    await interaction.response.send_message(content=f"Creating timeout word '{word}'...", ephemeral=True)
+
+    try :
+        await timeout_words.add(word=word.lower(), active_hours=active_hours, dm_message=dm_message)
+        await interaction.edit_original_response(content=f"Timeout word '{word}' created for {active_hours}")
+    except ValueError as e:
+        log.error(msg=f"ValueError in word_timeout_create command - {e}")
+        await interaction.edit_original_response(content=f"Error: {str(e)}")
+    except Exception as e:
+        log.error(msg=f"Error in word_timeout_create command - {e}")
+        await interaction.edit_original_response(content="Error: Unable to add timeout word.")
+
+
+
+@bot.tree.command(name="word_timeout_list")
+async def word_timeout_list(interaction: discord.Interaction) -> None:
+    """
+    List all timeout words.
+    """
+    await interaction.response.send_message(content=f"Getting Timeout words...", ephemeral=True)
+
+
+    try :
+        response: str = await timeout_words.list_timeout_words()
+        await interaction.edit_original_response(content=response)
+    except Exception as e:
+        log.error(msg=f"Error in word_timeout_list command - {e}")
+        await interaction.edit_original_response(content="Unable to list timeout words.")
+
+
+@bot.tree.command(name="word_timeout_delete")
+@app_commands.describe(word="Remove a word from the restricted list")
+async def word_timeout_delete(interaction: discord.Interaction, word: str) -> None:
+    """
+    Delete a timeout word.
+    """
+    await interaction.response.send_message(content=f"Deleting word '{word}'...", ephemeral=True)
+
+    try :
+        await timeout_words.remove(word=word.lower())
+        await interaction.edit_original_response(content=f"Timeout word '{word}' removed")
+    except ValueError as e:
+        log.error(msg=f"ValueError in word_timeout_delete command - {e}")
+        await interaction.edit_original_response(content=f"Error: {str(e)}")
+    except Exception as e:
+        log.error(msg=f"Error in word_timeout_delete command - {e}")
+        await interaction.edit_original_response(content="Error: Unable to remove timeout word.")
 
 
 @bot.tree.command(name="verify")
@@ -205,6 +279,8 @@ async def give_funded(
         await interaction.edit_original_response(
             content="WHOOPS something happened...blame gary."
         )
+
+
 
 
 if __name__ == "__main__":
