@@ -18,6 +18,8 @@ import services.funded_roles.functions as funded_roles
 import services.imposter.functions as imposter
 import services.shared.functions as shared
 import services.message_checker.functions as message_checker
+import services.message_checker.spam.functions as spam2
+
 import services.spam.functions as spam
 import services.timeout_words.functions as timeout_words
 import services.trading_plans.functions as trading_plans
@@ -112,6 +114,108 @@ async def on_command_error() -> None:
     """
     return
 
+@bot.tree.command(name="spam_filter_list")
+async def spam_filter_list(interaction: discord.Interaction) -> None:
+    """
+    List spam config.
+    """
+    await interaction.response.send_message(content=f"Getting spam config...", ephemeral=True, suppress_embeds=True)
+
+
+    try :
+        response: str = await spam2.discord_get_spam_list()
+        await interaction.edit_original_response(content=response)
+    except Exception as e:
+        log.error(msg=f"Error in getting spam filter config command - {e}")
+        await interaction.edit_original_response(content="Unable to list spam config.")
+
+
+@bot.tree.command(name="spam_filter_create")
+@app_commands.describe(type="Type of spam (word or phrase)",
+                        spam="Word or phrase to filter",
+                        active_hours="How long to keep word_timeout active",
+                        action="Action to take when spam is detected")
+@app_commands.choices(
+    type=[
+        app_commands.Choice(name="word", value="word"),
+        app_commands.Choice(name="phrase", value="phrase")],
+    active_hours=[
+        app_commands.Choice(name="3hr", value="3hr"),
+        app_commands.Choice(name="24hr", value="24hr"),
+        app_commands.Choice(name="48hr", value="48hr"),
+        app_commands.Choice(name="1wk", value="1wk"),
+        app_commands.Choice(name="forever", value="forever"),
+    ],
+    action=[
+        app_commands.Choice(name="timeout", value="timeout"),
+        app_commands.Choice(name="kick", value="kick"),
+    ])
+
+async def spam_filter_create(interaction: discord.Interaction,
+                            type: Literal['word', 'phrase'],
+                            spam: str,
+                            active_hours: Literal['3hr', '24hr', '48hr', '1wk', 'forever'],
+                            action: Literal['timeout', 'kick']) -> None:
+    """
+    Add a spam filter to the spam config.
+    """
+    await interaction.response.send_message(content=f"Adding {type} to spam config...", ephemeral=True, suppress_embeds=True)
+
+
+    try :
+        if type == "word":
+            if len(spam.split()) > 1:
+                raise ValueError("creation of spam word failed: only one word is allowed for this type")
+            await spam2.add_spam_word(word=spam, expires=active_hours, action=action)
+        else:
+            if len(spam.split()) <= 1:
+                raise ValueError("creation of spam phrase failed: needs to be multiple words")
+            await spam2.add_spam_phrase(phrase=spam, expires=active_hours, action=action)
+
+
+        await interaction.edit_original_response(content=f"spam {type} '{spam}' created for {active_hours}")
+
+
+    except ValueError as e:
+        log.error(msg=f"ValueError in spam_filter_create command - {e}")
+        await interaction.edit_original_response(content=f"Error: {str(e)}")
+    except Exception as e:
+        log.error(msg=f"Error in spam_filter_create command - {e}")
+        await interaction.edit_original_response(content="Error: Unable to add spam filter.")
+
+@bot.tree.command(name="spam_filter_delete")
+@app_commands.choices(
+    type=[
+        app_commands.Choice(name="word", value="word"),
+        app_commands.Choice(name="phrase", value="phrase")],)
+@app_commands.describe(type="Type of spam (word or phrase)",
+                        spam="Remove a word/phrase from the restricted list..Use list command to get exact string")
+async def spam_filter_delete(interaction: discord.Interaction, type: Literal['word', 'phrase'], spam: str) -> None:
+    """
+    Delete a spam phrase/word.
+    """
+    await interaction.response.send_message(content=f"Deleting spam {type} '{spam}'...", ephemeral=True)
+
+    try :
+        if type == "word":
+            if len(spam.split()) > 1:
+                raise ValueError("deletion of spam word failed: only one word is allowed for this type")
+            await spam2.remove_spam_word(word=spam)
+            await interaction.edit_original_response(content=f"spam {type} '{spam}' removed")
+        else:
+            if len(spam.split()) <= 1:
+                raise ValueError("deletion of spam phrase failed: needs to be multiple words")
+            await spam2.remove_spam_phrase(phrase=spam)
+            await interaction.edit_original_response(content=f"spam {type} '{spam}' removed")
+
+
+    except ValueError as e:
+        log.error(msg=f"ValueError in spam_filter_delete command - {e}")
+        await interaction.edit_original_response(content=f"Error: {str(e)}")
+    except Exception as e:
+        log.error(msg=f"Error in spam_filter_delete command - {e}")
+        await interaction.edit_original_response(content="Error: Unable to remove spam filter.")
+
 
 
 @bot.tree.command(name="word_timeout_create")
@@ -137,9 +241,11 @@ async def word_timeout_create(interaction: discord.Interaction,
     try :
         await timeout_words.add(word=word.lower(), active_hours=active_hours, dm_message=dm_message)
         await interaction.edit_original_response(content=f"Timeout word '{word}' created for {active_hours}")
+
     except ValueError as e:
         log.error(msg=f"ValueError in word_timeout_create command - {e}")
         await interaction.edit_original_response(content=f"Error: {str(e)}")
+
     except Exception as e:
         log.error(msg=f"Error in word_timeout_create command - {e}")
         await interaction.edit_original_response(content="Error: Unable to add timeout word.")
@@ -157,6 +263,7 @@ async def word_timeout_list(interaction: discord.Interaction) -> None:
     try :
         response: str = await timeout_words.list_timeout_words()
         await interaction.edit_original_response(content=response)
+
     except Exception as e:
         log.error(msg=f"Error in word_timeout_list command - {e}")
         await interaction.edit_original_response(content="Unable to list timeout words.")
@@ -173,9 +280,11 @@ async def word_timeout_delete(interaction: discord.Interaction, word: str) -> No
     try :
         await timeout_words.remove(word=word.lower())
         await interaction.edit_original_response(content=f"Timeout word '{word}' removed")
+
     except ValueError as e:
         log.error(msg=f"ValueError in word_timeout_delete command - {e}")
         await interaction.edit_original_response(content=f"Error: {str(e)}")
+
     except Exception as e:
         log.error(msg=f"Error in word_timeout_delete command - {e}")
         await interaction.edit_original_response(content="Error: Unable to remove timeout word.")

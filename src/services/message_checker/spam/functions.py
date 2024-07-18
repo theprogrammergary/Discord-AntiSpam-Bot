@@ -76,19 +76,46 @@ async def get_spam_list() -> dict:
     return current_config
 
 
+async def discord_get_spam_list() -> str:
+    spam_config = await get_spam_list()
 
-async def add_spam_word(word: str, expires: Literal['3hr', '24hr', '48hr', '1wk', 'forever']) -> None:
+    def format_date(date_str: str) -> str:
+        try:
+            dt = datetime.fromisoformat(date_str)
+            now = datetime.now()
+            hours_until = round((dt - now).total_seconds() / 3600)
+
+            if hours_until >= 999:
+                return "forever"
+            else:
+                return f"{hours_until} hours remaining"
+        except ValueError:
+            return date_str
+
+    if spam_config:
+        return "**__PHRASES:__**\n" + "\n".join([
+            f"'_{phrase['spam']}_'  -  {format_date(phrase['expires'])}"
+            for phrase in spam_config['spam_config']['spam_phrases']
+        ]) + "\n\n**__WORDS:__**\n" + "\n".join([
+            f"'_{word['spam']}_'  -  {format_date(word['expires'])}"
+            for word in spam_config['spam_config']['spam_words']
+        ])
+    else:
+        return "No spam config found."
+
+
+async def add_spam_word(word: str, expires: Literal['3hr', '24hr', '48hr', '1wk', 'forever'], action: Literal['timeout', 'kick']) -> None:
     spam_config = await open_spam_config()
 
     for spam_word in spam_config['spam_config']['spam_words']:
         if spam_word['spam'] == word.lower():
             raise ValueError(f"The word '{word}' is already in the spam word list.")
 
-    spam_config['spam_config']['spam_words'].append({"word": word.lower(), "expires": expiration_time(expires)})
+    spam_config['spam_config']['spam_words'].append({"spam": word.lower(), "expires": expiration_time(expires), "action": action})
     await save_spam_config(spam_config)
 
 
-async def add_spam_phrase(phrase: str, expires: Literal['3hr', '24hr', '48hr', '1wk', 'forever']) -> None:
+async def add_spam_phrase(phrase: str, expires: Literal['3hr', '24hr', '48hr', '1wk', 'forever'], action: Literal['timeout', 'kick']) -> None:
     spam_config = await open_spam_config()
 
     for spam_phrase in spam_config['spam_config']['spam_phrases']:
@@ -96,7 +123,7 @@ async def add_spam_phrase(phrase: str, expires: Literal['3hr', '24hr', '48hr', '
             raise ValueError(f"The phrase '{phrase}' is already in the spam phrase list.")
 
 
-    spam_config['spam_config']['spam_phrases'].append({"phrase": phrase.lower(), "expires": expiration_time(expires)})
+    spam_config['spam_config']['spam_phrases'].append({"spam": phrase.lower(), "expires": expiration_time(expires), "action": action})
     await save_spam_config(spam_config)
 
 
@@ -123,10 +150,10 @@ async def remove_spam_word(word: str) -> None:
     new_spam_words = []
 
     for spam_word in spam_config['spam_config']['spam_words']:
-        if spam_word["word"] == word:
+        if spam_word["spam"] == word:
             word_found = True
         else:
-            new_spam_words.append(word)
+            new_spam_words.append(spam_word)
 
     if not word_found:
         raise ValueError(f"Word '{word}' not found in timeout words.")
@@ -143,10 +170,10 @@ async def remove_spam_phrase(phrase: str) -> None:
     new_spam_phrases = []
 
     for spam_phrase in spam_config['spam_config']['spam_phrases']:
-        if spam_phrase["phrase"] == phrase:
+        if spam_phrase["spam"] == phrase:
             phrase_found = True
         else:
-            new_spam_phrases.append(phrase)
+            new_spam_phrases.append(spam_phrase)
 
     if not phrase_found:
         raise ValueError(f"Phrase '{phrase}' not found in timeout phrases.")
