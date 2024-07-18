@@ -17,6 +17,7 @@ import services.fun.functions as fun
 import services.funded_roles.functions as funded_roles
 import services.imposter.functions as imposter
 import services.shared.functions as shared
+import services.message_checker.functions as message_checker
 import services.spam.functions as spam
 import services.timeout_words.functions as timeout_words
 import services.trading_plans.functions as trading_plans
@@ -99,6 +100,9 @@ async def on_message(message) -> None:
 
     log.debug(msg="funded_roles.remove_posts")
     await funded_roles.remove_posts(bot=bot, message=message)
+
+    log.debug(msg="message_checker.check_msg")
+    await message_checker.check_msg(bot=bot, discord=discord, message=message)
 
 
 @bot.event

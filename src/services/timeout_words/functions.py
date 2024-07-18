@@ -5,12 +5,12 @@ import re
 from datetime import datetime, timedelta
 import json
 
-from fuzzywuzzy import fuzz
 from typing import List, Literal
 from pathlib import Path
 
 import services.shared.functions as shared
 from config import log
+from thefuzz import fuzz
 
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
@@ -67,10 +67,7 @@ async def check_msg(bot, discord, message) -> None:
 
 
         # Timeout the user
-        await member.timeout(
-            timedelta(minutes=15),
-            reason=f"Timeout word caught: {timeout_word['word']}"
-        )
+
 
         # DM the user
         try:
@@ -116,7 +113,6 @@ def map_special_chars(word: str) -> str:
         '1': 'i',
         '5': 's',
         '7': 't',
-        # Add more mappings as needed
     }
     return ''.join(mapping.get(char, char) for char in word)
 

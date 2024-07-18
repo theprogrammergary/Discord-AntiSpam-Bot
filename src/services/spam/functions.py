@@ -28,15 +28,21 @@ def is_spam(text: str) -> bool:
         r"contact on telegram",
         r"note only interested people should message me",
         r"@tradewith_hugo",
+
         r"precision funding",
         r"precision trader funding",
         r"precision trading",
         r"https://precisionfunding\.vip/\S*",
         r"https://discord.gg/precisionfunding*",
+
+        r"fast track trading",
+        r"fast track",
+        r"ftt",
+        r"https://fasttracktrading.net/\S*",
+
         r"grab it before it gets deleted:"
         r"$50 gift card"
         r"steamcommunity\.com/\S*"
-
     ]
 
     for pattern in spam_patterns:

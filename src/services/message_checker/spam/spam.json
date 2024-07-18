@@ -1,0 +1,98 @@
+{
+    "spam_config": {
+        "spam_phrases": [
+            {
+                "spam": "@everyone",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "stock investment group",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "https://chat\\.whatsapp\\.com/\\S+",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "https://t\\.me/\\S+",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "contact on telegram",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "note only interested people should message me",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "@tradewith_hugo",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "precision funding",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "precision trader funding",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "precision trading",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "https://precisionfunding\\.vip/\\S*",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "https://discord.gg/precisionfunding*",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "fast track trading",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "ftt",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "fast track",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "timeout"
+            },
+            {
+                "spam": "grab it before it gets deleted:",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            },
+            {
+                "spam": "steamcommunity\\.com/\\S*",
+                "expires": "3024-07-17T20:22:34.262500",
+                "action": "kick"
+            }
+        ],
+        "spam_words": [
+            {
+                "spam": "tradovate",
+                "expires": "2024-07-19T20:22:34.262500",
+                "action": "timeout"
+            }
+        ]
+    }
+}
