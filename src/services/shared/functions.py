@@ -3,7 +3,7 @@ Shared services for the app
 """
 
 # imports
-from typing import Any
+from typing import Any, List
 
 import config
 from config import log
@@ -76,6 +76,29 @@ async def get_mod_info(bot, guild_id: int) -> tuple[list[str], list[int]] | None
     mod_names.extend(NA_MOD_NAMES_LIST)
 
     return mod_names, mod_ids
+
+
+async def member_has_godmode(bot, member) -> bool:
+    """
+    Check if a member has priveliged roles 
+    """
+
+    # Check message author is not mod
+    mod_names: List[str] = []
+    mod_ids: List[int] = []
+
+    if member.guild.id is None:
+        return False
+
+    mod_info: tuple[list[str], list[int]] | None = await get_mod_info(
+        bot=bot, guild_id=member.guild.id
+    )
+
+    if mod_info is not None:
+        mod_names, mod_ids = mod_info
+
+    return member.id in mod_ids
+
 
 
 async def user_obj_to_member_obj(

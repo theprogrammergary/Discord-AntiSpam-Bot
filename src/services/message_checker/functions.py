@@ -21,9 +21,6 @@ async def check_msg(bot, discord, message) -> None:
       message (_type_): _description_
   """
 
-  if await author_has_godmode(bot,message):
-    return
-
   # get msg ready for checking
   clean_msg = clean_discord_message(message.content)
   clean_msg_words = clean_msg.split(' ')
@@ -59,20 +56,20 @@ async def handle_spam(message, discord, spam_dict) -> None:
   )
 
   # Delete the message
-  # await message.delete()
+  await message.delete()
 
   # # DM User
-  # await dm_user(message, spam_dict)
+  await dm_user(message, spam_dict)
 
   # # Kick or timeout user
-  # if spam_dict['action'] == 'kick':
-  #   await message.author.kick()
+  if spam_dict['action'] == 'kick':
+    await message.author.kick()
 
-  # elif spam_dict['action'] == 'timeout':
-  #   await message.author.timeout(
-  #     timedelta(minutes=15),
-  #       reason=f"Timeout word caught: {spam_dict['spam']}"
-  #   )
+  elif spam_dict['action'] == 'timeout':
+    await message.author.timeout(
+      timedelta(minutes=15),
+        reason=f"Timeout word caught: {spam_dict['spam']}"
+    )
 
   
   
