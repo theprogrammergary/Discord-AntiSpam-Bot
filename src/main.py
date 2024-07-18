@@ -110,6 +110,9 @@ async def on_command_error() -> None:
     """
     return
 
+
+
+
 @bot.tree.command(name="spam_filter_list")
 async def spam_filter_list(interaction: discord.Interaction) -> None:
     await spam_commands.handle_spam_filter_list(interaction=interaction)
@@ -135,12 +138,14 @@ async def spam_filter_list(interaction: discord.Interaction) -> None:
         app_commands.Choice(name="kick", value="kick"),
     ])
 
+
 async def spam_filter_create(interaction: discord.Interaction,
                             type: Literal['word', 'phrase'],
                             spam: str,
                             active_hours: Literal['3hr', '24hr', '48hr', '1wk', 'forever'],
                             action: Literal['timeout', 'kick']) -> None:
     await spam_commands.handle_spam_filter_create(interaction=interaction, type=type, spam_string=spam, active_hours=active_hours, action=action)
+
 
 @bot.tree.command(name="spam_filter_delete")
 @app_commands.choices(
