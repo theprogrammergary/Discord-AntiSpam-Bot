@@ -27,7 +27,7 @@
                     "apex",
                     "payout"
                 ],
-                "cooldown": 1721510507.8567865
+                "cooldown": 1721511053.6010654
             },
             {
                 "link": "https://support.atf.com/hc/en-us/articles/8532425144091-Can-Traders-From-Any-Country-Participate",
@@ -57,7 +57,7 @@
                     "matt",
                     "broker"
                 ],
-                "cooldown": 1721510563.326763
+                "cooldown": 1721511221.8155377
             },
             {
                 "link": "https://discord.gg/apextraderfunding",
@@ -67,7 +67,7 @@
                     "apex",
                     "discord"
                 ],
-                "cooldown": 1721510576.995573
+                "cooldown": 1721511236.3148434
             },
             {
                 "link": "https://youtube.com/shorts/WGllD4hxdAE?si=qyieHWmsuNUSuH3O",
@@ -121,7 +121,8 @@
                     "streaming"
                 ],
                 "required_keywords": [
-                    "matt"                ],
+                    "matt"
+                ],
                 "cooldown": 1721510687.645381
             }
         ]

@@ -96,12 +96,13 @@ async def handle_faq(message, discord, faq_result: dict) -> None:
   )
 
   if highest_link['can_post']:
-    await message.reply(f"-# {highest_link['link_message']} \n\n-# {highest_link['link']}",
-    suppress_embeds=True)
+    await message.reply(
+      f"-# {highest_link['link_message']} "
+      f"\n\n-# {highest_link['link']} "
+      f"\n\n-# (still in beta)",
+      suppress_embeds=True
+    )
 
-    # reply to message 
-    # -# like this
-    # pass
 
   log_message: str = (
       "👷🏼 **__BETA FAQ QUESTION FOUND__**"

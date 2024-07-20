@@ -66,7 +66,7 @@ async def map_keywords_to_links(keywords: List[str], faq_config: dict) -> dict:
     match, score, *_ = process.extractOne(user_keywords, link_keywords)
 
     # TODO: needs to be at least 90% match
-    if match and score > 5: 
+    if match and score > 50: 
 
       for required_keyword in link["required_keywords"]:
         if required_keyword not in keywords:
