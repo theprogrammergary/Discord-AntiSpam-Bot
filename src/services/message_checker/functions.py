@@ -1,5 +1,7 @@
 import services.message_checker.spam.functions as spam
-# import src.services.message_checker.faq.functions as faq
+import services.message_checker.faq.functions as faq
+import time
+import math
 
 import services.shared.functions as shared
 from config import log
@@ -30,10 +32,10 @@ async def check_msg(bot, discord, message) -> None:
     await handle_spam(message, discord, spam_result)
     return
 
-  # faq_result = await faq.check_for_faq(clean_msg_words)
-  # if faq_result:
-  #   return
+  faq_result: dict = await faq.check_for_faq(clean_msg, clean_msg_words)
 
+  if 'matched_links' in faq_result:
+    await handle_faq(message, discord, faq_result)
 
 
 
@@ -73,8 +75,52 @@ async def handle_spam(message, discord, spam_dict) -> None:
 
   
   
-  
+async def handle_faq(message, discord, faq_result: dict) -> None:
+  """
+  Service that handles faq.
+  """
+  highest_link: dict = faq_result['highest_link']
+  matched_links: List[dict] = faq_result['matched_links']
 
+  # Log spam caught
+  debug_results = "\n".join(
+      [
+       f"> - Link: {link['link']}"
+       f"\n> - Link Keywords: {link['keywords']}"
+       f"\n> - Required Keywords: {link['required_keywords']}"
+       f"\n> - Keywords matched: {link['message_keywords']}"
+       f"\n> - Cooldown remaining: {math.ceil((link['cooldown'] - time.time()) / 60)} minutes"
+       f"\n> - Score: {link['score']}\n" 
+       for link in matched_links
+       ]
+  )
+
+  if highest_link['can_post']:
+    await message.reply(f"-# {highest_link['link_message']} \n\n-# {highest_link['link']}",
+    suppress_embeds=True)
+
+    # reply to message 
+    # -# like this
+    # pass
+
+  log_message: str = (
+      "👷🏼 **__BETA FAQ QUESTION FOUND__**"
+      f"\n> - <@{message.author.id}>"
+      f"\n> - Message: {message.content}"
+      f"\n> - Keywords in message: {highest_link['message_keywords']}"
+
+      f"\n\n> - **__RESULT__**:"
+      f"\n> - Link: {highest_link['link']}"
+      f"\n> - Posting: {'Yes' if highest_link['can_post'] == True else 'No'}"
+      f"\n> - Score: {highest_link['score']}"
+      
+      f"\n\n> - **__DEBUG RESULTS__**:\n{debug_results}"
+  )
+
+  log.info(log_message)
+  await shared.log_event(
+      discord=discord, member=message.author, result_msg=log_message
+  )
 
 
 

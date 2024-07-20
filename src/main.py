@@ -18,7 +18,6 @@ import services.funded_roles.functions as funded_roles
 import services.imposter.functions as imposter
 import services.shared.functions as shared
 import services.message_checker.functions as message_checker
-import services.message_checker.spam.functions as spam
 import services.message_checker.spam.commands as spam_commands
 import services.trading_plans.functions as trading_plans
 import services.verify.commands as verify_commands
@@ -89,6 +88,9 @@ async def on_message(message) -> None:
     """
     Controller for on_message event.
     """
+
+    if message.author.bot:
+        return
 
     if await shared.member_has_godmode(bot=bot, member=message.author):
         return

@@ -87,12 +87,6 @@
                 "action": "kick"
             }
         ],
-        "spam_words": [
-            {
-                "spam": "tradovate",
-                "expires": "2024-07-19T20:22:34.262500",
-                "action": "timeout"
-            }
-        ]
+        "spam_words": []
     }
 }

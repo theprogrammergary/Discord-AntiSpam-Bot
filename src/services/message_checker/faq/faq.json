@@ -1,0 +1,129 @@
+{
+    "faq_config": {
+        "question_words": [
+            "how",
+            "what",
+            "where",
+            "who",
+            "what",
+            "why",
+            "which",
+            "do",
+            "does",
+            "can",
+            "could",
+            "should",
+            "when",
+            "anybody",
+            "anyone",
+            "is there"
+        ],
+        "links": [
+            {
+                "link": "https://support.atf.com/hc/en-us/articles/10403497070363-How-Do-Payouts-Work-Payouts-Withdrawals-Performance-Split-Percentages",
+                "message": "Apex Payout Information",
+                "keywords": [],
+                "required_keywords": [
+                    "apex",
+                    "payout"
+                ],
+                "cooldown": 1721510507.8567865
+            },
+            {
+                "link": "https://support.atf.com/hc/en-us/articles/8532425144091-Can-Traders-From-Any-Country-Participate",
+                "message": "Apex Allowed Countries",
+                "keywords": [],
+                "required_keywords": [
+                    "apex",
+                    "countries"
+                ],
+                "cooldown": 1721504213.289493
+            },
+            {
+                "link": "https://tradingplatformhelp.com/p/sierrachart",
+                "message": "Trades by Matt uses Sierra Chart with Trading Platform Help",
+                "keywords": [],
+                "required_keywords": [
+                    "matt",
+                    "platform"
+                ],
+                "cooldown": 1721510545.116342
+            },
+            {
+                "link": "https://edgeclear.com/trades-by-matt/",
+                "message": "Trades by Matt's personal broker is Edgeclear and executes via Sierra Chart",
+                "keywords": [],
+                "required_keywords": [
+                    "matt",
+                    "broker"
+                ],
+                "cooldown": 1721510563.326763
+            },
+            {
+                "link": "https://discord.gg/apextraderfunding",
+                "message": "Join the Apex Trader Funding Discord!",
+                "keywords": [],
+                "required_keywords": [
+                    "apex",
+                    "discord"
+                ],
+                "cooldown": 1721510576.995573
+            },
+            {
+                "link": "https://youtube.com/shorts/WGllD4hxdAE?si=qyieHWmsuNUSuH3O",
+                "message": "Matt uses the built in Sierra Chart trade copier for his accounts. You can learn how to use it here: https://youtube.com/shorts/WGllD4hxdAE?si=qyieHWmsuNUSuH3O",
+                "keywords": [],
+                "required_keywords": [
+                    "matt",
+                    "copier"
+                ],
+                "cooldown": 1721503205.3619936
+            },
+            {
+                "link": "https://fanlink.to/TradesByMatt",
+                "message": "Matt's Lofi Background Music",
+                "keywords": [],
+                "required_keywords": [
+                    "music",
+                    "stream"
+                ],
+                "cooldown": 1721510606.9978943
+            },
+            {
+                "link": "https://www.tbm.gg/apex",
+                "message": "Get a funded trading account with Apex Trader Funding. Get up to 80% OFF with code 'TBM'",
+                "keywords": [],
+                "required_keywords": [
+                    "apex",
+                    "promo"
+                ],
+                "cooldown": 1721510616.337897
+            },
+            {
+                "link": "https://www.tradingplatformhelp.com/p/sierrachart",
+                "message": "Get Sierra Chart Setup help!",
+                "keywords": [
+                    "chart",
+                    "sierrachart"
+                ],
+                "required_keywords": [
+                    "sierra"
+                ],
+                "cooldown": 1721510630.3516273
+            },
+            {
+                "link": "https://www.youtube.com/tradesbymatt, https://discord.com/channels/668989780398440466/748887492660297798",
+                "message": "Idk check #annoucements and Matt's Youtube",
+                "keywords": [
+                    "today",
+                    "morning",
+                    "stream",
+                    "streaming"
+                ],
+                "required_keywords": [
+                    "matt"                ],
+                "cooldown": 1721510687.645381
+            }
+        ]
+    }
+}
