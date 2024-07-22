@@ -92,14 +92,17 @@ async def on_message(message) -> None:
     if message.author.bot:
         return
 
+    log.debug(msg="trading_plans.check_trading_plan")
+    await trading_plans.check_trading_plan(bot=bot, discord=discord, message=message)
+
+
     if await shared.member_has_godmode(bot=bot, member=message.author):
         return
 
     log.debug(msg="message_checker.check_msg")
     await message_checker.check_msg(bot=bot, discord=discord, message=message)
 
-    log.debug(msg="trading_plans.check_trading_plan")
-    await trading_plans.check_trading_plan(bot=bot, discord=discord, message=message)
+
 
     log.debug(msg="funded_roles.remove_posts")
     await funded_roles.remove_posts(bot=bot, message=message)
