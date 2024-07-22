@@ -27,7 +27,7 @@
                     "apex",
                     "payout"
                 ],
-                "cooldown": 1721511053.6010654
+                "cooldown": 1721659607.4498563
             },
             {
                 "link": "https://support.atf.com/hc/en-us/articles/8532425144091-Can-Traders-From-Any-Country-Participate",
@@ -67,7 +67,7 @@
                     "apex",
                     "discord"
                 ],
-                "cooldown": 1721511236.3148434
+                "cooldown": 1721647481.3417609
             },
             {
                 "link": "https://youtube.com/shorts/WGllD4hxdAE?si=qyieHWmsuNUSuH3O",
@@ -109,10 +109,10 @@
                 "required_keywords": [
                     "sierra"
                 ],
-                "cooldown": 1721510630.3516273
+                "cooldown": 1721627292.8281994
             },
             {
-                "link": "https://www.youtube.com/tradesbymatt, https://discord.com/channels/668989780398440466/748887492660297798",
+                "link": "https://discord.com/channels/668989780398440466/748887492660297798 \nhttps://www.youtube.com/@TradesbyMatt/streams",
                 "message": "Idk check #annoucements and Matt's Youtube",
                 "keywords": [
                     "today",
@@ -123,7 +123,7 @@
                 "required_keywords": [
                     "matt"
                 ],
-                "cooldown": 1721510687.645381
+                "cooldown": 1721578839.8616886
             }
         ]
     }
